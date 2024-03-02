@@ -34,19 +34,17 @@ export async function downloadDataToDB(app: INestApplication<any>) {
 
 async function downloadFilmsToDB(app: INestApplication<any>) {
     try {
-        const filmService = app.get(FilmsService);
+        let filmsService = app.get(FilmsService);
         let url: string = `https://swapi.dev/api/films/?page=1`;
 
-        while (url) {
-            const response = await fetch(url);
-            const jsonData = await response.json();
-            const films: Films[] = jsonData.results;
 
-            for (let film of films) {
-                if (!(await filmService.includes(film.title))) {
-                    let newFilm = await filmService.create(film);
-                    await filmService.save(newFilm);
-                }
+        while (url) {
+            let response = await fetch(url);
+            let jsonData = await response.json();
+            let films: Films[] = jsonData.results;
+
+            for (let person of films) {
+                await filmsService.downloadToDBByUrl(person.url);
             }
 
             url = jsonData.next;
@@ -59,8 +57,9 @@ async function downloadFilmsToDB(app: INestApplication<any>) {
 
 async function downloadPeopleToDB(app: INestApplication<any>) {
     try {
-        let personService = app.get(PeopleService);
+        let peopleService = app.get(PeopleService);
         let url: string = `https://swapi.dev/api/people/?page=1`;
+
 
         while (url) {
             let response = await fetch(url);
@@ -68,10 +67,7 @@ async function downloadPeopleToDB(app: INestApplication<any>) {
             let people: People[] = jsonData.results;
 
             for (let person of people) {
-                if (!(await personService.includes(person.name))) {
-                    let newPerson = await personService.create(person);
-                    await personService.save(newPerson);
-                }
+                await peopleService.downloadToDBByUrl(person.url);
             }
 
             url = jsonData.next;

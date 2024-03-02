@@ -4,11 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { People } from './entities/people.entity';
 import { PeopleImages } from './entities/peopleImages.entity';
 import { ImagesDto } from 'src/common/dto/images.dto';
-import { Service } from 'src/common/interfaces/service.interface';
 import { DBService } from 'src/db/dB.service';
+import { CreatePeopleDto } from './dto/create_people.dto';
+import { UpdatePeopleDto } from './dto/update_people.dto';
+import { CreatePeopleFromSWapi } from './dto/create_people_from_SWapi.dto';
+import { Service } from 'src/common/interfaces/service.interface';
+import { PersonShortData as PersonFullData } from './types/person_full_data.type';
 
 @Injectable()
-export class PeopleService implements Service<People>{
+export class PeopleService implements Service<People>  {
 
     constructor(
         @InjectRepository(People)
@@ -18,74 +22,127 @@ export class PeopleService implements Service<People>{
         private readonly dBService: DBService,
     ) { }
 
-    async includes(name: string): Promise<boolean> {
-        return !!(await this.peopleRepository.findOne({ where: { name: name } }));
+    async includes(data: CreatePeopleDto): Promise<boolean> {
+        if (data.url) {
+            return !!(await this.peopleRepository.findOneBy({ url: data.url }));
+        } else {
+            return false;
+        }
     }
 
-    async create(data: Partial<People> | string): Promise<People> {
-
+    async downloadToDBByUrl(url: string): Promise<void> {
         try {
-            if (typeof data === 'string') {
-                let response = await fetch(data);
-                let newPerson = await response.json();
-                return newPerson;
+            let response = await fetch(url);
+            let personFromSWapi: Partial<CreatePeopleFromSWapi> = await response.json();
+
+            let newPerson = new People();
+            newPerson.name = personFromSWapi.name;
+            newPerson.height = personFromSWapi.height;
+            newPerson.mass = personFromSWapi.mass;
+            newPerson.hair_color = personFromSWapi.hair_color;
+            newPerson.skin_color = personFromSWapi.skin_color;
+            newPerson.eye_color = personFromSWapi.eye_color;
+            newPerson.birth_year = personFromSWapi.birth_year;
+            newPerson.gender = personFromSWapi.gender;
+            newPerson.films = await this.dBService.getFilmsFromDBByUrls(personFromSWapi.films);
+            newPerson.created = new Date().toISOString();
+            newPerson.edited = new Date().toISOString();
+            newPerson.url = personFromSWapi.url;
+
+            await this.peopleRepository.save(newPerson);
+        } catch (error) {
+            console.error('Error downoading people to DB by url:', error);
+        }
+    }
+
+    async create(data: CreatePeopleDto): Promise<People> {
+        try {
+            let newPerson = new People();
+            newPerson.name = data.name;
+            newPerson.height = data.height;
+            newPerson.mass = data.mass;
+            newPerson.hair_color = data.hair_color;
+            newPerson.skin_color = data.skin_color;
+            newPerson.eye_color = data.eye_color;
+            newPerson.birth_year = data.birth_year;
+            newPerson.gender = data.gender;
+            newPerson.films = await this.dBService.getFilmsFromDBByUrls(data.films);
+            newPerson.created = new Date().toISOString()
+            newPerson.edited = new Date().toISOString();
+            newPerson.images = await this.dBService.getPeopleImagesFromDBByUrls(data.images);
+            if (data.url) {
+                newPerson.url = data.url;
+                await this.peopleRepository.save(newPerson);
             } else {
-                let newPerson = new People();
-                newPerson.name = data.name;
-                newPerson.height = data.height;
-                newPerson.mass = data.mass;
-                newPerson.hair_color = data.hair_color;
-                newPerson.skin_color = data.skin_color;
-                newPerson.eye_color = data.eye_color;
-                newPerson.birth_year = data.birth_year;
-                newPerson.gender = data.gender;
-                // let planets = await this.dBService.getPlanets([personOrUrl.homeworld]);
-                // newPerson.homeworld = planets[0] ? planets[0] : undefined;
-                newPerson.films = await this.dBService.getFilms(data.films);
-                // newPerson.species = await this.dBService.getSpecies(personOrUrl.species);
-                // newPerson.vehicle = await this.dBService.getVehicles(personOrUrl.vehicle);
-                // newPerson.starships = await this.dBService.getStarships(personOrUrl.starships);
-                newPerson.created = data.created;
-                newPerson.edited = data.edited;
-                newPerson.url = newPerson
-                // newPerson.images = data.images || [];
-                return newPerson;
+                let newPersonId = (await this.peopleRepository.save(newPerson)).id;
+                let uniqueUrl = `https://default-domain.dev/api/people/${newPersonId}/`;
+                newPerson.url = uniqueUrl;
+                await this.peopleRepository.save(newPerson);
             }
+
+            console.log('The person was crated successfully.');
+            return newPerson;
         } catch (error) {
             console.error('Error creating person:', error);
         }
     }
 
-    async save(person: Partial<People>): Promise<void> {
-        try {
-            await this.peopleRepository.save(person);
-            console.log('The person was saved successfully.');
-        } catch (error) {
-            console.error('Error saving person:', error);
-        }
-    }
-
     async getObjectsFromThePage(page: number): Promise<People[]> {
-        let peopleLimitOnThePage = 10;
-        return await this.peopleRepository.find({ skip: (page - 1) * peopleLimitOnThePage, take: peopleLimitOnThePage });
+        let objectsLimitOnThePage = 10;
+        let peopleWithFilms = await this.peopleRepository.find({
+            skip: (page - 1) * objectsLimitOnThePage, take: objectsLimitOnThePage,
+            relations: ["films"]
+        });
+
+        let peopleFullData: PersonFullData[] = peopleWithFilms;
+
+        let peopleShortData = [];
+
+        for (let person of peopleFullData) {
+            person.films = person.films.map((film: { url: string } | string) => {
+                if (typeof film !== 'string') return film.url;
+            });
+            peopleShortData.push(person);
+        }
+
+        return peopleShortData;
     }
 
     async getTotal(): Promise<number> {
         return await this.peopleRepository.count();
     }
 
-    async update(id: number, updatedData?: Partial<People>): Promise<People> {
+    async getPerson(personId: number): Promise<PersonFullData> {
+        let personWithFilms = await this.peopleRepository.findOne({
+            where: { id: personId },
+            relations: ["films", "images"]
+        });
+
+        let personShortData: PersonFullData = personWithFilms;
+
+        personShortData.films = personShortData.films.map((film: { url: string } | string) => {
+            if (typeof film !== 'string') return film.url;
+        });
+        personShortData.images = personShortData.images.map((image: { url: string } | string) => {
+            if (typeof image !== 'string') return image.url;
+        })
+
+        return personShortData;
+    }
+
+    async update(personId: number, updatedData?: UpdatePeopleDto): Promise<People> {
         try {
-            let personToUpdate = await this.peopleRepository.findOne({ where: { id: id } });
+            let personToUpdate = await this.peopleRepository.findOneBy({ id: personId });
 
-            let updatedPerson = await this.create(updatedData);
+            personToUpdate.edited = new Date().toDateString();
 
-            updatedPerson = Object.assign(personToUpdate, updatedPerson);
+            let updatedPerson = Object.assign(personToUpdate, updatedData);
 
             await this.peopleRepository.save(updatedPerson);
 
             console.log('The person was updated successfully.');
-            return await this.peopleRepository.findOne({ where: { id: updatedPerson.id } });
+
+            return await this.peopleRepository.findOneBy({ id: updatedPerson.id });
         } catch (error) {
             console.error('Person updating error:', error);
         }
@@ -94,11 +151,11 @@ export class PeopleService implements Service<People>{
     async getAllIds(): Promise<number[]> {
         const people = await this.peopleRepository.find();
         return people.map(person => person.id);
-      }
+    }
 
-    async delete(id: number): Promise<void> {
+    async delete(personId: number): Promise<void> {
         try {
-            let personToDelete: People = await this.peopleRepository.findOne({ where: { id: id } });
+            let personToDelete: People = await this.peopleRepository.findOne({ where: { id: personId } });
 
             await this.peopleRepository.remove(personToDelete);
             console.log('The person was deleted successfully.');
@@ -107,12 +164,12 @@ export class PeopleService implements Service<People>{
         }
     }
 
-    async downloadImages(data: ImagesDto, personId: number): Promise<void> {
+    async downloadImages(data: ImagesDto, personId: number): Promise<PersonFullData> {
         try {
-            let selectedPerson = await this.peopleRepository.findOne({ where: { id: personId } });
+            let selectedPerson = await this.peopleRepository.findOneBy({ id: personId });
             if (!selectedPerson) throw new Error('Person not found.');
 
-            let personImages = await this.imagesRepository.find({ where: { people: selectedPerson } });
+            let personImages = await this.imagesRepository.findBy({ people: selectedPerson });
             let personImageUrls = personImages.map(image => image.url);
 
             for (let image of data.urls) {
@@ -122,29 +179,63 @@ export class PeopleService implements Service<People>{
                     personImages.push(newImage);
                     selectedPerson.images = personImages;
                     await this.peopleRepository.save(selectedPerson);
+                    console.log("Images downloaded successfully.");
                 }
             }
 
-            console.log("Images downloaded successfully.");
+            return await this.getPerson(personId);
         } catch (error) {
             console.error('Error downloading images:', error);
         }
     }
 
-    async deleteImage(personId: number, imageId: number): Promise<void> {
+    async deleteImage(personId: number, imageId: number): Promise<PersonFullData> {
         try {
-            let selectedPerson = await this.peopleRepository.findOne({ where: { id: personId } });
-            let imagesForDelete = await this.imagesRepository.find({ where: { people: selectedPerson } });
+            let selectedPerson = await this.peopleRepository.findOneBy({ id: personId });
+            let imagesForDelete = await this.imagesRepository.findBy({ people: selectedPerson });
             let imageForDelete: PeopleImages;
             imagesForDelete.forEach(image => {
                 if (image.id === imageId) {
                     imageForDelete = image;
                 }
             })
-            await this.imagesRepository.remove(imageForDelete);
+            if (imageForDelete) {
+                await this.imagesRepository.remove(imageForDelete);
+            }
+
             console.log("Images deleted successfully.");
+            return await this.getPerson(personId);
         } catch (error) {
             console.log('Error deleting image:', error)
         }
+    }
+
+    async getAllImageIds(): Promise<number[]> {
+        let allImages = await this.imagesRepository.find();
+        let allImagIds = allImages.map(image => image.id);
+        return allImagIds;
+    }
+
+    async getAllImages(): Promise<PeopleImages[]> {
+        return await this.imagesRepository.find();
+    }
+
+    async includesImage(images: ImagesDto, personId: number): Promise<boolean> {
+        let selectedPerson = await this.peopleRepository.findOneBy({ id: personId });
+        let allImages = await this.imagesRepository.findBy({ people: selectedPerson });
+        let allImageUrls = allImages.map(image => image.url);
+        for (let key in images.urls) {
+             let url = images.urls[key];
+            if (allImageUrls.includes(url)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    async getAllImageUrls(): Promise<string[]> {
+        let allImages = await this.getAllImages();
+        let allImageUrls = allImages.map(image => image.url);
+        return allImageUrls;
     }
 }

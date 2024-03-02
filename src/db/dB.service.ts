@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Films } from 'src/films/entities/films.entity';
+import { FilmsImages } from 'src/films/entities/filmsImages.entity';
 import { People } from 'src/people/entities/people.entity';
+import { PeopleImages } from 'src/people/entities/peopleImages.entity';
 import { Repository } from 'typeorm';
-
-console.log('dbService')
 
 @Injectable()
 export class DBService {
     constructor(
         @InjectRepository(People) private readonly peopleRepository: Repository<People>,
         @InjectRepository(Films) private readonly filmsRepository: Repository<Films>,
+        @InjectRepository(PeopleImages) private readonly peopleImagesRepository: Repository<PeopleImages>,
+        @InjectRepository(FilmsImages) private readonly filmsImagesRepository: Repository<FilmsImages>,
         // @InjectRepository(Planet) private readonly planetRepository: Repository<Planet>,
         // @InjectRepository(Specie) private readonly specieRepository: Repository<Specie>,
         // @InjectRepository(Starship) private readonly starshipRepository: Repository<Starship>,
@@ -107,47 +109,71 @@ export class DBService {
     //     }
     // }
 
-    async getPeople(peopleData: (People[] | string[])) {
-        let peopleFromDb = await this.peopleRepository.find();
-        if (peopleData) {
-            let people: People[] = [];
-            for (let personData of peopleData) {
-                if (typeof personData === 'string') {
-                    if (personData.charAt(personData.length - 1) !== '/') personData += '/';
-                    let matchedPerson = peopleFromDb.find(personFromDB => personFromDB.url === personData);
-                    if (matchedPerson) people.push(matchedPerson);
-                } else if (personData) {
-                    let personDataAsPerson = personData as People;
-                    let matchedPerson = peopleFromDb.find(personFromDB => personFromDB.name === personDataAsPerson.name);
-                    if (matchedPerson) people.push(matchedPerson);
+    async getFilmsImagesFromDBByUrls(urls: string[]): Promise<FilmsImages[]> {
+        try {
+            if (urls) {
+                let filmsImages: FilmsImages[] = [];
+                for (let url of urls) {
+                    filmsImages.push(await this.filmsImagesRepository.findOneBy({ url: url }));
                 }
+                filmsImages = filmsImages.filter((value, index, self) => {
+                    return self.indexOf(value) === index;
+                });
+                return filmsImages;
             }
-            people = people.filter((value, index, self) => {
-                return self.indexOf(value) === index;
-            });
-            return people;
+        } catch (error) {
+            console.error('Error getting filmsImages from DB by urls:', error);
         }
     }
 
-    async getFilms(filmsData: (Films[] | string[])) {
-        let filmsFromDb = await this.filmsRepository.find();
-        if (filmsData) {
-            let films: Films[] = [];
-            for (let filmData of filmsData) {
-                if (typeof filmData === 'string') {
-                    if (filmData.charAt(filmData.length - 1) !== '/') filmData += '/';
-                    let matchedFilm = filmsFromDb.find(filmFromDB => filmFromDB.url === filmData);
-                    if (matchedFilm) films.push(matchedFilm);
-                } else if (filmData) {
-                    let filmDataAsFilm = filmData as Films;
-                    let matchedFilm = filmsFromDb.find(filmFromDB => filmFromDB.title === filmDataAsFilm.title);
-                    if (matchedFilm) films.push(matchedFilm);
+    async getPeopleImagesFromDBByUrls(urls: string[]): Promise<PeopleImages[]> {
+        try {
+            if (urls) {
+                let peopleImages: PeopleImages[] = [];
+                for (let url of urls) {
+                    peopleImages.push(await this.peopleImagesRepository.findOneBy({ url: url }));
                 }
+                peopleImages = peopleImages.filter((value, index, self) => {
+                    return self.indexOf(value) === index;
+                });
+                return peopleImages;
             }
-            films = films.filter((value, index, self) => {
-                return self.indexOf(value) === index;
-            });
-            return films;
+        } catch (error) {
+            console.error('Error getting peopleImages from DB by urls:', error);
+        }
+    }
+
+    async getPeopleFromDBByUrls(urls: string[]): Promise<People[]> {
+        try {
+            if (urls) {
+                let people: People[] = [];
+                for (let url of urls) {
+                    people.push(await this.peopleRepository.findOneBy({ url: url }));
+                }
+                people = people.filter((value, index, self) => {
+                    return self.indexOf(value) === index;
+                });
+                return people;
+            }
+        } catch (error) {
+            console.error('Error getting people from DB by urls:', error);
+        }
+    }
+
+    async getFilmsFromDBByUrls(urls: string[]): Promise<Films[]> {
+        try {
+            if (urls) {
+                let films: Films[] = [];
+                for (let url of urls) {
+                    films.push(await this.filmsRepository.findOneBy({ url: url }));
+                }
+                films = films.filter((value, index, self) => {
+                    return self.indexOf(value) === index;
+                });
+                return films;
+            }
+        } catch (error) {
+            console.error('Error getting films from DB by urls:', error);
         }
     }
 }

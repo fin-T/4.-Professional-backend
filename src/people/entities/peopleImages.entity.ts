@@ -1,15 +1,16 @@
-import { Column, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
 import { People } from "./people.entity";
 
 @Entity()
+@Unique(['url'])
 export class PeopleImages {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({ nullable: false })
     url: string
 
-    @ManyToOne(() => People, (person) => person.images, { nullable: true})
+    @ManyToOne(() => People, (person) => person.images, { nullable: true })
     @JoinTable()
     people: Relation<People>;
 }

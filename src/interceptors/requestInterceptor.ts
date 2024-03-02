@@ -7,11 +7,6 @@ export class RequestInterceptor implements NestInterceptor {
         context: ExecutionContext,
         next: CallHandler<any>
     ): Promise<Observable<any>> {
-        console.log(
-            'Request caught by th interceptor',
-            context.switchToHttp().getRequest().originalUrl,
-        )
-
         return next.handle().pipe(map((data) => {
             return data === null ? { 'data': '' } : { 'data': data };
         }))

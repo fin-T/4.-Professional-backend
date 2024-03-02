@@ -7,6 +7,7 @@ import { PeopleImages } from './entities/peopleImages.entity';
 import { Films } from 'src/films/entities/films.entity';
 import { FilmsImages } from 'src/films/entities/filmsImages.entity';
 import { DBService } from 'src/db/dB.service';
+import { FilmsService } from 'src/films/films.service';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { DBService } from 'src/db/dB.service';
   ],
   providers: [
     DBService,
-    PeopleService
+    PeopleService,
+    FilmsService
   ],
   exports: [
     TypeOrmModule

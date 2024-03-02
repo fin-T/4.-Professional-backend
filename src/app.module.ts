@@ -34,7 +34,7 @@ import { DBService } from './db/dB.service';
       synchronize: true
     }),
     PeopleModule,
-    FilmsModule
+    FilmsModule,
   ],
   controllers: [
     PeopleController,

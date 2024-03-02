@@ -1,9 +1,9 @@
 import { People } from "src/people/entities/people.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
 import { FilmsImages } from "./filmsImages.entity";
 
 @Entity()
-@Unique(['title'])
+@Unique(['url'])
 export class Films {
     @PrimaryGeneratedColumn()
     id: number;
@@ -51,9 +51,8 @@ export class Films {
     @Column({ nullable: true })
     edited: string;
 
-    @OneToOne(() => Films, (films) => films.url, { nullable: true })
-    @JoinColumn()
-    url: Partial<Films>;
+    @Column({ nullable: true })
+    url: string;
 
     @OneToMany(() => FilmsImages, (images) => images.films, { nullable: true, cascade: true })
     images: Relation<FilmsImages>[];

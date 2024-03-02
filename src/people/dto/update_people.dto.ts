@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsArray, IsNumberString, IsOptional, IsString, IsUrl, Matches } from "class-validator";
 
 export class UpdatePeopleDto {
     @IsOptional()
@@ -6,38 +6,46 @@ export class UpdatePeopleDto {
     readonly name: string;
 
     @IsOptional()
-    @IsString()
+    @IsNumberString()
     readonly height: string;
 
     @IsOptional()
-    @IsString()
+    @IsNumberString()
     readonly mass: string;
-    
+
     @IsOptional()
     @IsString()
     readonly hair_color: string;
-    
+
     @IsOptional()
     @IsString()
     readonly skin_color: string;
-    
+
     @IsOptional()
     @IsString()
-    readonly  eye_color: string;
-    
+    readonly eye_color: string;
+
     @IsOptional()
     @IsString()
     readonly birth_year: string;
-    
+
     @IsOptional()
     @IsString()
-    readonly  gender: string;
-    
+    readonly gender: string;
+
     @IsOptional()
-    @IsString()
-    readonly  created: string;
-    
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly films: string[];
+
     @IsOptional()
+    @IsUrl()
     @IsString()
-    readonly edited: string;
+    readonly url: string;  
+
+    @IsOptional()
+    @IsArray()
+    @IsUrl({}, { each: true })
+    @Matches(/\.(jpg|jpeg|png|gif)$/, { each: true })
+    readonly images: string[];
 }

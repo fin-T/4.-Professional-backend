@@ -3,13 +3,12 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne,
 import { PeopleImages } from "./peopleImages.entity";
 
 @Entity()
-@Unique(['name'])
+@Unique(['url'])
 export class People {
-
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: false })
+    @Column()
     name: string;
 
     @Column({ nullable: true })
@@ -37,7 +36,7 @@ export class People {
     // @JoinColumn()
     // homeworld: Planet;
 
-    @ManyToMany(() => Films, (films) => films.characters, { nullable: true })
+    @ManyToMany(() => Films, (films) => films.characters, { nullable: true, cascade: true })
     @JoinTable()
     films: Films[];
 
@@ -58,10 +57,9 @@ export class People {
 
     @Column({ nullable: true })
     edited: string;
-    
-    @OneToOne(() => People, (people) => people.url, { nullable: true })
-    @JoinColumn()
-    url: Partial<People>;
+
+    @Column({ nullable: true })
+    url: string;
 
     @OneToMany(() => PeopleImages, (images) => images.people, { nullable: true, cascade: true })
     images: Relation<PeopleImages>[];

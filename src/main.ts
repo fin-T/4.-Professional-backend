@@ -6,7 +6,7 @@ import { createDB, downloadDataToDB } from './dbinitializer/dbinitializer';
 import { RequestInterceptor } from './interceptors/requestInterceptor';
 
 async function bootstrap() {
-  await createDB();
+  // await createDB();
 
   const app = await NestFactory.create(AppModule);
 
@@ -15,7 +15,7 @@ async function bootstrap() {
   }),);
   app.useGlobalInterceptors(new RequestInterceptor())
   
-  await downloadDataToDB(app);
+  // await downloadDataToDB(app);
 
   const config = new DocumentBuilder()
     .setTitle('SWapi')

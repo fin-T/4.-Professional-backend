@@ -1,24 +1,29 @@
-import { ImagesDto } from "../dto/images.dto";
-
 export interface Service<T> {
+    includes(data: object): Promise<boolean>;
 
-    includes(name: string): Promise<boolean>;
+    downloadToDBByUrl(url: string): Promise<void>;
 
-    create(data: Partial<T> | string): Promise<T>;
-
-    save(data: Partial<T>): Promise<void>;
+    create(data: object): Promise<T>;
 
     getObjectsFromThePage(page: number): Promise<T[]>;
 
     getTotal(): Promise<number>;
 
-    update(id: number, updatedData?: Partial<T>): Promise<T>;
+    update(tId: number, updatedData?: object): Promise<T>;
 
     getAllIds(): Promise<number[]>;
 
-    delete(id: number): Promise<void>;
+    delete(tId: number): Promise<void>;
 
-    downloadImages(data: ImagesDto, personId: number): Promise<void>;
+    downloadImages(data: object, tId: number): object;
 
-    deleteImage(personId: number, imageId: number): Promise<void>;
+    deleteImage(tId: number, imageID: number): object;
+
+    getAllImageIds(): Promise<number[]>;
+
+    getAllImages(): Promise<object[]>;
+
+    includesImage(images: object, id: number): Promise<boolean>;
+
+    getAllImageUrls(): Promise<string[]>;
 }
