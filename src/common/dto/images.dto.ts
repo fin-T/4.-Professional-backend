@@ -1,8 +1,11 @@
 import { IsArray, IsUrl, Matches } from "class-validator";
-
+console.log('ImagesDto');
 export class ImagesDto {
     @IsArray()
     @IsUrl({}, { each: true })
-    @Matches(/\.(jpg|jpeg|png|gif)$/, { each: true })
+    @Matches(/\.(jpg|jpeg|png|gif)$/, {
+        each: true,
+        message: "Incorrect image url (supported image formats: jpg, jpeg, png, gif)."
+    })
     urls: string[];
 }

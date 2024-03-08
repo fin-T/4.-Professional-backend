@@ -1,4 +1,5 @@
 import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+console.log('ValidatorConstraint')
 
 @ValidatorConstraint({ name: 'isDateFormat', async: false })
 export class IsDateFormatConstraint implements ValidatorConstraintInterface {

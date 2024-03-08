@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from './people/people.module';
@@ -11,7 +11,22 @@ import { People } from './people/entities/people.entity';
 import { PeopleImages } from './people/entities/peopleImages.entity';
 import { Films } from './films/entities/films.entity';
 import { FilmsImages } from './films/entities/filmsImages.entity';
-import { DBService } from './db/dB.service';
+import { PlanetsModule } from './planets/planets.module';
+import { PlanetsController } from './planets/planets.controller';
+import { PlanetsService } from './planets/planets.service';
+import { Planets } from './planets/entities/planets.entity';
+import { PlanetsImages } from './planets/entities/planetsImages.entity';
+import { Repository } from 'typeorm';
+import { ItemsModule } from './items/items.module';
+import { ItemsServiceImpl } from './items/items.service';
+import { CommonService } from './common/common.service';
+import { SpeciesModule } from './species/species.module';
+import { Species } from './species/entities/species.entity';
+import { SpeciesImages } from './species/entities/speciesImages.entity';
+import { SpeciesController } from './species/species.controller';
+import { SpeciesService } from './species/species.service';
+
+console.log('AppModule');
 
 @Module({
   imports: [
@@ -29,21 +44,34 @@ import { DBService } from './db/dB.service';
         People,
         PeopleImages,
         Films,
-        FilmsImages
+        FilmsImages,
+        Planets,
+        PlanetsImages,
+        Species,
+        SpeciesImages
       ],
       synchronize: true
     }),
     PeopleModule,
-    FilmsModule,
+    // PlanetsModule,
+    // FilmsModule,
+    // ItemsModule,
+    SpeciesModule
   ],
   controllers: [
     PeopleController,
     FilmsController,
+    PlanetsController,
+    SpeciesController
   ],
   providers: [
-    DBService,
+    CommonService,
+    ItemsServiceImpl,
     PeopleService,
-    FilmsService
+    FilmsService,
+    PlanetsService,
+    SpeciesService,
+    Repository
   ],
 })
 export class AppModule { }

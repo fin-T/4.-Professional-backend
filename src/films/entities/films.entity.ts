@@ -1,6 +1,9 @@
 import { People } from "src/people/entities/people.entity";
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
 import { FilmsImages } from "./filmsImages.entity";
+import { Planets } from "src/planets/entities/planets.entity";
+import { Species } from "src/species/entities/species.entity";
+console.log('Films');
 
 @Entity()
 @Unique(['url'])
@@ -29,9 +32,9 @@ export class Films {
     @ManyToMany(() => People, (people) => people.films, { nullable: true })
     characters: People[];
 
-    // @ManyToMany(() => Planet, (planet) => planet.films, { nullable: true })
-    // @JoinTable()
-    // planets: Planet[];
+    @ManyToMany(() => Planets, (planet) => planet.films, { nullable: true })
+    @JoinTable()
+    planets: Planets[];
 
     // @ManyToMany(() => Starship, (starship) => starship.films, { nullable: true })
     // @JoinTable()
@@ -41,19 +44,19 @@ export class Films {
     // @JoinTable()
     // vehicle: Vehicle[];
 
-    // @ManyToMany(() => Specie, (specie) => specie.films, { nullable: true })
-    // @JoinTable()
-    // species: Specie[];
+    @ManyToMany(() => Species, (specie) => specie.films, { nullable: true })
+    @JoinTable()
+    species: Species[];
 
-    @Column({ nullable: true })
+    @Column()
     created: string;
 
-    @Column({ nullable: true })
+    @Column()
     edited: string;
 
-    @Column({ nullable: true })
+    @Column()
     url: string;
 
-    @OneToMany(() => FilmsImages, (images) => images.films, { nullable: true, cascade: true })
+    @OneToMany(() => FilmsImages, (images) => images.films, { nullable: true })
     images: Relation<FilmsImages>[];
 }

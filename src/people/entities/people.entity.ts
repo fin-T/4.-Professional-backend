@@ -1,7 +1,10 @@
 import { Films } from "src/films/entities/films.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, 
+    PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
 import { PeopleImages } from "./peopleImages.entity";
-
+import { Planets } from "src/planets/entities/planets.entity";
+import { Species } from "src/species/entities/species.entity";
+console.log('People')
 @Entity()
 @Unique(['url'])
 export class People {
@@ -32,17 +35,16 @@ export class People {
     @Column({ nullable: true })
     gender: string;
 
-    // @ManyToOne(() => Planet, (planet) => planet.residents, {nullable: true})
-    // @JoinColumn()
-    // homeworld: Planet;
+    @ManyToOne(() => Planets, (planet) => planet.residents, { nullable: true })
+    @JoinColumn()
+    homeworld: Planets;
 
-    @ManyToMany(() => Films, (films) => films.characters, { nullable: true, cascade: true })
+    @ManyToMany(() => Films, (films) => films.characters, { nullable: true })
     @JoinTable()
     films: Films[];
 
-    // @ManyToMany(() => Specie, (specie) => specie.people, { nullable: true })
-    // @JoinTable()
-    // species: Specie[];
+    @ManyToMany(() => Species, (specie) => specie.people, { nullable: true })
+    species: Species[];
 
     // @ManyToMany(() => Vehicle, (vehicle) => vehicle.pilots, { nullable: true })
     // @JoinTable()
@@ -52,15 +54,16 @@ export class People {
     // @JoinTable()
     // starships: Starship[];
 
-    @Column({ nullable: true })
+    @Column()
     created: string;
 
-    @Column({ nullable: true })
+    @Column()
     edited: string;
 
-    @Column({ nullable: true })
+    @Column()
     url: string;
 
-    @OneToMany(() => PeopleImages, (images) => images.people, { nullable: true, cascade: true })
+    @OneToMany(() => PeopleImages, (images) => images.people, { nullable: true })
+    @JoinTable()
     images: Relation<PeopleImages>[];
 };

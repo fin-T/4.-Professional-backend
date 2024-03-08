@@ -1,5 +1,6 @@
-import { IsArray, IsNumberString, IsOptional, IsString, IsUrl, Matches } from "class-validator";
+import { IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
 import { IsDateFormat } from "src/validators/isDateFormat";
+console.log('UpdateFilmsDto');
 
 export class UpdateFilmsDto {
     @IsOptional()
@@ -33,13 +34,27 @@ export class UpdateFilmsDto {
     readonly characters: string[];
 
     @IsOptional()
-    @IsUrl()
-    @IsString()
-    readonly url: string;  
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly planets: string[];
 
     @IsOptional()
     @IsArray()
     @IsUrl({}, { each: true })
-    @Matches(/\.(jpg|jpeg|png|gif)$/, { each: true })
-    readonly images: string[];
+    readonly starships: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly vehicles: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly species: string[];
+
+    @IsOptional()
+    @IsUrl()
+    @IsString()
+    readonly url: string;
 }

@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { createDB, downloadDataToDB } from './dbinitializer/dbinitializer';
 import { RequestInterceptor } from './interceptors/requestInterceptor';
-
+console.log('Main');
 async function bootstrap() {
   // await createDB();
 

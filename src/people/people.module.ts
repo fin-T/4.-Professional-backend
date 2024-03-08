@@ -6,8 +6,17 @@ import { People } from './entities/people.entity';
 import { PeopleImages } from './entities/peopleImages.entity';
 import { Films } from 'src/films/entities/films.entity';
 import { FilmsImages } from 'src/films/entities/filmsImages.entity';
-import { DBService } from 'src/db/dB.service';
 import { FilmsService } from 'src/films/films.service';
+import { Planets } from 'src/planets/entities/planets.entity';
+import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
+import { PlanetsService } from 'src/planets/planets.service';
+import { Repository } from 'typeorm';
+import { CommonService } from 'src/common/common.service';
+import { ItemsServiceImpl } from 'src/items/items.service';
+import { Species } from 'src/species/entities/species.entity';
+import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
+import { SpeciesService } from 'src/species/species.service';
+console.log('PeopleModule')
 
 @Module({
   imports: [
@@ -15,19 +24,27 @@ import { FilmsService } from 'src/films/films.service';
       People,
       PeopleImages,
       Films,
-      FilmsImages
-    ])
+      FilmsImages,
+      Planets,
+      PlanetsImages,
+      Species,
+      SpeciesImages
+    ]),
   ],
   controllers: [
     PeopleController
   ],
   providers: [
-    DBService,
+    CommonService,
+    ItemsServiceImpl,
     PeopleService,
-    FilmsService
+    FilmsService,
+    SpeciesService,
+    PlanetsService,
+    Repository
   ],
   exports: [
-    TypeOrmModule
+    TypeOrmModule,
   ]
 })
 export class PeopleModule { }

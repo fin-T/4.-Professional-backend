@@ -1,5 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable, map } from "rxjs";
+console.log('RequestInterceptor');
 
 @Injectable()
 export class RequestInterceptor implements NestInterceptor {
@@ -8,7 +9,29 @@ export class RequestInterceptor implements NestInterceptor {
         next: CallHandler<any>
     ): Promise<Observable<any>> {
         return next.handle().pipe(map((data) => {
-            return data === null ? { 'data': '' } : { 'data': data };
+
+            if (data) {
+                if (Array.isArray(data)) return { 'data': { 'items': data } }
+
+
+
+                let keys = Object.keys(data);
+                let values = Object.values(data);
+
+                let idIndex = keys.indexOf('id');
+
+                if (idIndex !== -1) {
+                    keys.splice(0, 0, keys.splice(idIndex, 1)[0]);
+                    values.splice(0, 0, values.splice(idIndex, 1)[0]);
+                }
+
+                let reorderedData = keys.reduce((acc, key, index) => {
+                    acc[key] = values[index];
+                    return acc;
+                }, {});
+
+                return { 'data': reorderedData };
+            }
         }))
     }
 

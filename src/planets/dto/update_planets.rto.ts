@@ -1,43 +1,48 @@
 import { IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
-console.log('UpdatePeopleDto');
+console.log('UpdatePlanetsDto')
 
-export class UpdatePeopleDto {
+export class UpdatePlanetsDto {
     @IsOptional()
     @IsString()
     readonly name: string;
-
+    
     @IsOptional()
     @IsNumberString()
-    readonly height: string;
-
+    readonly rotation_period: string;
+    
     @IsOptional()
     @IsNumberString()
-    readonly mass: string;
-
+    readonly orbital_period: string;
+    
+    @IsOptional()
+    @IsNumberString()
+    readonly diameter: string;
+    
     @IsOptional()
     @IsString()
-    readonly hair_color: string;
-
+    readonly climate: string;
+    
     @IsOptional()
     @IsString()
-    readonly skin_color: string;
-
+    readonly gravity: string;
+    
     @IsOptional()
     @IsString()
-    readonly eye_color: string;
-
+    readonly terrain: string;
+    
     @IsOptional()
-    @IsString()
-    readonly birth_year: string;
-
+    @IsNumberString()
+    readonly surface_water: string;
+    
     @IsOptional()
-    @IsString()
-    readonly gender: string;
-
+    @IsNumberString()
+    readonly population: string;
+    
     @IsOptional()
-    @IsUrl()
-    readonly homeworld: string;
-
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly residents: string[];
+    
     @IsOptional()
     @IsArray()
     @IsUrl({}, { each: true })
@@ -47,19 +52,9 @@ export class UpdatePeopleDto {
     @IsArray()
     @IsUrl({}, { each: true })
     readonly species: string[];
-
-    @IsOptional()
-    @IsArray()
-    @IsUrl({}, { each: true })
-    readonly vehicles: string[];
-
-    @IsOptional()
-    @IsArray()
-    @IsUrl({}, { each: true })
-    readonly starships: string[];
-
+    
     @IsOptional()
     @IsUrl()
     @IsString()
-    readonly url: string; 
+    readonly url: string;
 }

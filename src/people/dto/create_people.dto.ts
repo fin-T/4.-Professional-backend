@@ -1,10 +1,12 @@
-import { IsArray, IsNumberString, IsOptional, IsString, IsUrl, Matches } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
+console.log('CreatePeopleDto');
 
 export class CreatePeopleDto {
     @IsString()
     readonly name: string;
 
     @IsOptional()
+    @IsNotEmpty()
     @IsNumberString()
     readonly height: string;
 
@@ -33,18 +35,31 @@ export class CreatePeopleDto {
     readonly gender: string;
 
     @IsOptional()
+    @IsUrl()
+    readonly homeworld: string;
+
+    @IsOptional()
     @IsArray()
     @IsUrl({}, { each: true })
-    films: string[];
+    readonly films: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly species: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly vehicles: string[];
+
+    @IsOptional()
+    @IsArray()
+    @IsUrl({}, { each: true })
+    readonly starships: string[];
 
     @IsOptional()
     @IsUrl()
     @IsString()
-    readonly url: string;    
-
-    @IsOptional()
-    @IsArray()
-    @IsUrl({}, { each: true })
-    @Matches(/\.(jpg|jpeg|png|gif)$/, { each: true })
-    readonly images: string[];
+    readonly url: string;
 }

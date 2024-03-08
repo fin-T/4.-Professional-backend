@@ -1,31 +1,31 @@
 import { Module } from '@nestjs/common';
-import { FilmsService } from './films.service';
-import { FilmsController } from './films.controller';
-import { Films } from './entities/films.entity';
-import { FilmsImages } from './entities/filmsImages.entity';
+import { PlanetsService } from './planets.service';
+import { PlanetsController } from './planets.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { People } from 'src/people/entities/people.entity';
+import { FilmsImages } from 'src/films/entities/filmsImages.entity';
+import { Films } from 'src/films/entities/films.entity';
 import { PeopleImages } from 'src/people/entities/peopleImages.entity';
-import { Planets } from 'src/planets/entities/planets.entity';
-import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
+import { People } from 'src/people/entities/people.entity';
+import { Planets } from './entities/planets.entity';
+import { PlanetsImages } from './entities/planetsImages.entity';
+import { FilmsService } from 'src/films/films.service';
 import { PeopleService } from 'src/people/people.service';
-import { PlanetsService } from 'src/planets/planets.service';
 import { Repository } from 'typeorm';
 import { CommonService } from 'src/common/common.service';
 import { ItemsServiceImpl } from 'src/items/items.service';
 import { Species } from 'src/species/entities/species.entity';
 import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
 import { SpeciesService } from 'src/species/species.service';
-console.log('FilmsModule');
+console.log('PlanetsModule')
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      Films,
-      FilmsImages,
+      Planets,
       People,
       PeopleImages,
-      Planets,
+      Films,
+      FilmsImages,
       PlanetsImages,
       Species,
       SpeciesImages
@@ -41,10 +41,10 @@ console.log('FilmsModule');
     Repository
   ],
   controllers: [
-    FilmsController
+    PlanetsController
   ],
   exports: [
-    TypeOrmModule, 
+    TypeOrmModule,
   ]
 })
-export class FilmsModule { }
+export class PlanetsModule {}
