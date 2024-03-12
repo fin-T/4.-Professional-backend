@@ -4,150 +4,166 @@ import { PeopleService } from './people.service';
 import { ImagesDto } from 'src/common/dto/images.dto';
 import { CreatePeopleDto } from './dto/create_people.dto';
 import { UpdatePeopleDto } from './dto/update_people.dto';
-import { FilmsService } from 'src/films/films.service';
-import { PlanetsService } from 'src/planets/planets.service';
-import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants';
-import { OneOfItemTypes, OneOfResponseTypes } from 'src/common/types/types';
-import { SpeciesService } from 'src/species/species.service';
+import { OneOfItems } from 'src/common/types/types';
+import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
 import { CommonService } from 'src/common/common.service';
 console.log('PeopleController')
+
 @ApiTags('People')
 @Controller('people')
 export class PeopleController {
     constructor(
         private peopleService: PeopleService,
-        private filmsService: FilmsService,
-        private planetsService: PlanetsService,
-        private speciesService: SpeciesService,
-        private commonService: CommonService,
+        private commonService: CommonService
     ) { }
 
     @Post()
     @ApiOperation({
-        summary: 'Создание человека.',
-        description: `Для создания человека необходимо передать тело запроса с обязательным полем <b>name</b>.<br>
-        Поля доступные для заполнения: <b>name</b>, <b>height</b>, <b>mass</b>, <b>hair_color</b>, <b>skin_color</b>, 
-        <b>eye_color</b>, <b>birth_year</b>, <b>gender</b>, <b>homeworld</b>, <b>species</b>, <b>vehicles</b>, 
+        summary: 'Creating person.',
+        description: `To create a person, you must pass the request body with the required field <b>name</b>.<br>
+        Fields available for filling: <b>name</b>, <b>height</b>, <b>mass</b>, <b>hair_color</b>, <b>skin_color</b>,
+        <b>eye_color</b>, <b>birth_year</b>, <b>gender</b>, <b>homeworld</b>, <b>species</b>, <b>vehicles< /b>,
         <b>starships</b>, <b>films</b>, <b>url</b>.
         <br>
-        Фрмат ввода можно посмотреть [тут](https://swapi.dev/api/people/1/). <br>
-        <b>Будте внимательны</b>, если вы не заполняете поле <b>url</b>, 
-        то он сгенерируется автоматически уникальным значением. <br>
-        Все поля могут быть не уникальны, кроме <b>url</b>. 
-        Если вы введёте неуникальный <b>url</b>, человек не будет создан и вам вернётся соответсвующий ответ.
+        The input format can be viewed [here](https://swapi.py4e.com/api/people/1/). <br>
+        <b>Be careful</b> if you do not fill in the <b>url</b> field,
+        then it will be generated automatically with a unique value. <br>
+        All fields may not be unique, except <b>url</b>.
+        If you enter a non-unique <b>url</b>, the person will not be created and the corresponding response will be 
+        returned to you.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "name": "Roma",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
+    "films": [ "https://swapi.py4e.com/api/films/1/", "https://swapi.py4e.com/api/films/2/" ],
     "url": "https://default-domain.dev/api/people/98/"
     }
         `
     })
     @ApiBody({ type: CreatePeopleDto, required: true })
-    async createPerson(@Body() data: CreatePeopleDto): Promise<OneOfResponseTypes> {
-        
-        // let unexistingUrls = [];
-        // for(let key in data) {
-        //     let elem = data[key];
-        //     if ()
-        // }
-        // if (unexistingUrls.length > 0) throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
-
-        if (data.url && !(await this.peopleService.isItemUrlExists(data.url))) {
-            return await this.peopleService.create(data);
+    async createPerson(@Body() data: CreatePeopleDto): Promise<Partial<OneOfItems>> {
+        if (await this.peopleService.isItemUrlExists(data.url)) {
+            throw new HttpException('A person with the same URL already exists.', 409)
         }
-        throw new HttpException('Человек с таким url уже существует.', 409)
+
+        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (unexistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        }
+        let newPerson = await this.peopleService.create(data);
+
+        let personDataForResponse = this.peopleService.setItemDataForResponse(newPerson);
+        if (!personDataForResponse) throw new HttpException('Unknown server error.', 500);
+
+        return personDataForResponse;
     }
 
     @Get()
     @ApiOperation({
-        summary: 'Получение людей на странице.'
+        summary: 'Getting people on the page.'
     })
     @ApiQuery({
         type: Number,
         name: 'page',
-        description: 'Страница с людьми. Если значение не будет передано, будут получены первые 10 людей.',
+        description: 'People page. If no value is passed, the first 10 people will be returned.',
         required: false,
         example: 1
 
     })
-    async getPeople(@Query('page') page: number): Promise<OneOfResponseTypes[]> {
-        let totalPeople = await this.peopleService.getTotal();
-        let totalPeopleOnThePage = 10;
-
-        if (!page) return this.peopleService.getItemsFromThePage(1);
-
-        if (page > totalPeople / totalPeopleOnThePage + 1 || page < 1) {
-            let lastPage = totalPeople / totalPeopleOnThePage;
-            throw new HttpException(`Не найдено. Всего есть страниц: ${lastPage.toFixed(0)}`, 404);
+    async getPeople(@Query('page') page?: number): Promise<Partial<OneOfItems>[]> {
+        let people = [];
+        if (!page) {
+            people = await this.peopleService.getItemsFromThePage(1);
+        } else {
+            people = await this.peopleService.getItemsFromThePage(page);
         }
 
-        return await this.peopleService.getItemsFromThePage(page);
+        if (people.length === 0) throw new HttpException('People not found.', 404);
+
+        if (!people) throw new HttpException('Unknown server error.', 500);
+
+        let peopleForResponse = people.map((person) => {
+            return this.peopleService.setItemDataForResponse(person)
+        })
+
+        return peopleForResponse;
     }
 
     @Put(':id')
     @ApiOperation({
-        summary: 'Обновление данных человека.',
-        description: `Чтобы передать данные для обновления, необходимо отправить 
-        тело запроса. 
-        Поля доступные для заполнения: <b>name</b>, <b>height</b>, <b>mass</b>, <b>hair_color</b>, <b>skin_color</b>, 
-        <b>eye_color</b>, <b>birth_year</b>, <b>gender</b>, <b>species</b>, <b>vehicles</b>, <b>starships</b>, 
-        <b>films</b>, <b>homeworld</b>, <b>url</b>, 
-        <b>images</b> (значение - массив url на изображения. Поддерживаемые форматы: jpg, jpeg, png, gif). 
+        summary: "Updating a person's data.",
+        description: `To transfer data for updating, you must send
+        request body.
+        Fields available for filling: <b>name</b>, <b>height</b>, <b>mass</b>, <b>hair_color</b>, <b>skin_color</b>,
+        <b>eye_color</b>, <b>birth_year</b>, <b>gender</b>, <b>species</b>, <b>vehicles</b>, <b>starships< /b>,
+        <b>films</b>, <b>homeworld</b>, <b>url</b>,
+        <b>images</b> (value is an array of urls for images. Supported formats: jpg, jpeg, png, gif).
         <br>
-        Фрмат ввода можно посмотреть [тут](https://swapi.dev/api/people/1/). 
-        <b>Будте внимательны</b>, если вы не заполняете поле <b>url</b>, 
-        то он сгенерируется автоматически уникальным значением. <br>
-        Все поля могут быть не уникальны, кроме <b>url</b>. 
-        Если вы введёте неуникальный <b>url</b>, человек не будет создан и вам вернётся соответсвующий ответ.
+        The input format can be viewed [here](https://swapi.py4e.com/api/people/1/).
+        <b>Be careful</b> if you do not fill in the <b>url</b> field,
+        then it will be generated automatically with a unique value. <br>
+        All fields may not be unique, except <b>url</b>.
+        If you enter a non-unique <b>url</b>, the person will not be created and the corresponding response will be 
+        returned to you.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "name": "Roma",
-    "films": [ "https://swapi.dev/api/films/4/", "https://swapi.dev/api/films/4/" ]
+    "films": [ "https://swapi.py4e.com/api/films/4/", "https://swapi.py4e.com/api/films/4/" ]
     }
         `
     })
     @ApiParam({ name: 'id', description: 'Person id', type: Number })
     @ApiBody({ type: UpdatePeopleDto, required: false })
-    async updatePerson(@Param('id') id: number, @Body() data: UpdatePeopleDto): Promise<OneOfResponseTypes> {
-        let unexistUrls = await this.getUnexistUrls(data);
-        if (unexistUrls.length > 0) throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistUrls}`, 404);
+    async updatePerson(
+        @Param('id') personId: number, @Body() updatedData: UpdatePeopleDto
+    ): Promise<Partial<OneOfItems>> {
+        if (updatedData.url && await this.peopleService.isItemUrlExists(updatedData.url)) {
+            throw new HttpException(`Url ${updatedData.url} is busied.`, 409);
+        }
 
-        let peopleIds = await this.peopleService.getAllItemIds();
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
+        if (nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
+        }
 
-        if (!peopleIds.includes(Number(id))) throw new HttpException(`Не найдено.`, 404);
+        let updatedPerson = await this.peopleService.update(personId, updatedData);
 
-        if (!(await this.peopleService.isItemUrlExists(data.url))) return await this.peopleService.update(Number(id), data);
+        let personDataForResponse = this.peopleService.setItemDataForResponse(updatedPerson);
+        if (!personDataForResponse) throw new HttpException('Unknown server error.', 500);
 
-        throw new HttpException('Человек с таким url уже существует.', 409)
+        return personDataForResponse;
     }
 
     @Delete(':id')
     @ApiOperation({
-        summary: 'Удаление человека.'
+        summary: 'Deleting a person.'
     })
     @ApiParam({ type: Number, name: 'id', description: 'Person id' })
-    async deletePerson(@Param('id') id: number): Promise<void> {
-        let peopleIds = await this.peopleService.getAllItemIds();
+    async deletePerson(@Param('id') personId: number): Promise<Partial<OneOfItems>> {
+        let personToDelete = await this.peopleService.getItem(Number(personId));
 
-        if (!peopleIds.includes(Number(id))) throw new HttpException('Не найдено.', 404);
+        if (!personToDelete) throw new HttpException('Data not found.', 404);
 
-        if (await this.peopleService.deleteItem(Number(id)) === null) throw new HttpException('Не найдено.', 404);
+        let deletedPerson = await this.peopleService.deleteItem(Number(personId));
+
+        let personDataForResponse = this.peopleService.setItemDataForResponse(deletedPerson);
+        if (!personDataForResponse) throw new HttpException('Item not found.', 404);
+
+        return personDataForResponse;
     }
 
     @Post(':id/images')
     @ApiOperation({
-        summary: 'Загрузка изображений.',
-        description: `Загрузка ссылок (urls) на изображения. <br>
-        Поддерживаемые форматы: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
-        Чтобы загрузить ссылки на изображения, нужно отправить тело запроса с полем <b>ursl</b>.
+        summary: 'Downloading images.',
+        description: `Loading links (urls) to images. <br>
+        Supported formats: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
+        To download links to images, you need to send the request body with the <b>ursl</b> field.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
     }
@@ -155,69 +171,51 @@ export class PeopleController {
     })
     @ApiBody({ type: ImagesDto, required: false })
     @ApiParam({ type: Number, name: 'id', description: 'Person id' })
-    async downloadImages(@Body() data: ImagesDto, @Param('id') personId: number): Promise<OneOfResponseTypes> {
-        let peopleIds = await this.peopleService.getAllItemIds();
+    async downloadImages(@Body() imagesData: ImagesDto,
+        @Param('id') personId: number): Promise<Partial<OneOfItems>> {
+        let person = await this.peopleService.getItem(Number(personId));
+        if (!person) throw new HttpException('Person not found.', 404);
 
-        if (!peopleIds.includes(Number(personId))) throw new HttpException('Человек не найден.', 404);
+        let personWithImages = await this.peopleService.downloadItemImages(imagesData, person);
+        let personDataForResponse = this.peopleService.setItemDataForResponse(personWithImages);
+        if (!personDataForResponse) throw new HttpException('Unknown server error.', 500);
 
-        return await this.peopleService.downloadItemImages(data, personId)
+        return personWithImages;
     }
 
     @Delete(':personId/images/:imageId')
     @ApiOperation({
-        summary: 'Удаление изображения.',
-        description: `Удаление ссылок (urls) на изображения по идентификаторам человека и изображения.`
+        summary: 'Deleting an image.',
+        description: `Removing links (urls) to images by person and image identifiers.`
     })
     @ApiParam({ type: Number, name: 'personId', description: 'Person id' })
     @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
     async deleteImages(
         @Param('personId') personId: number,
         @Param('imageId') imageId: number
-    ): Promise<OneOfResponseTypes> {
-        let peopleIds = await this.peopleService.getAllItemIds();
+    ): Promise<Partial<OneOfItems>> {
+        let person = await this.peopleService.getItem(Number(personId));
+        if (!person) throw new HttpException('Person not found.', 404);
 
-        if (!peopleIds.includes(Number(personId))) throw new HttpException('Человек не найден.', 404);
+        let imageToDelete = await this.peopleService.getImage(Number(imageId));
+        if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
-        let allPersonImagesIds = await this.peopleService.getItemImageIds(Number(personId));
+        await this.peopleService.deleteImage(imageId);
+        
+        let personDataForResponse = this.peopleService.setItemDataForResponse(person);
 
-        if (!allPersonImagesIds.includes(Number(imageId))) {
-            throw new HttpException('Изображение для выбранного человека не найдено.', 404);
-        }
-
-        return await this.peopleService.deleteItemImage(Number(personId), Number(imageId));
+        return personDataForResponse;
     }
 
     @Get(':id')
     @ApiOperation({
-        summary: 'Получение человека.'
+        summary: 'Getting person.'
     })
     @ApiParam({ type: Number, name: 'id', description: 'Person id' })
-    async getPerson(@Param('id') id?: number): Promise<OneOfItemTypes> {
-        let allPeopleIds = await this.peopleService.getAllItemIds();
-        if (!allPeopleIds.includes(Number(id))) throw new HttpException('Человек по такому id не найден.', 404);
+    async getPerson(@Param('id') personId: number): Promise<Partial<OneOfItems>> {
+        let person = await this.peopleService.getItem(Number(personId));
+        if (!person) throw new HttpException('Person not found.', 404);
 
-        let item = await this.peopleService.getItem(Number(id));
-        return await this.peopleService.setItemDataForResponse(item);
-    }
-
-    async getUnexistUrls(data: CreatePeopleDto) {
-        let unexistUrls = [];
-        for (let key in data) {
-            if (key === 'homeworld' && typeof data[key] === 'string') {
-                unexistUrls.push(...await this.planetsService.getItemNonExistingUrls([data[key]]));
-            }
-            let elem = data[key];
-            if (Array.isArray(elem)) {
-                if (elem.length > 0) switch (key) {
-                    case 'films': unexistUrls.push(...await this.filmsService.getItemNonExistingUrls(elem)); break;
-                    case 'species': unexistUrls.push(...await this.speciesService.getItemNonExistingUrls(elem)); break;
-                    default: break;
-                }
-            }
-        }
-        return unexistUrls;
+        return this.peopleService.setItemDataForResponse(person);
     }
 }
-
-
-

@@ -1,4 +1,4 @@
-import { IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
+import { ArrayUnique, IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
 console.log('CreatePlanetsDto')
 export class CreatePlanetsDto {
     @IsString({ message: "name must be a string and name is required" })
@@ -38,22 +38,18 @@ export class CreatePlanetsDto {
     
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly residents: string[];
     
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly films: string[];
-
-    @IsOptional()
-    @IsArray()
-    @IsUrl({}, { each: true })
-    readonly species: string[];
     
     @IsOptional()
     @IsUrl()
-    @IsString()
     readonly url: string;
 }
 

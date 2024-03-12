@@ -1,0 +1,76 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Vehicles } from './entities/vehicles.entity';
+import { Repository } from 'typeorm';
+import { VehiclesImages } from './entities/vehiclesImages.entity';
+import { CreateVehiclesDto } from './dto/create_vehicles.dto';
+import { People } from 'src/people/entities/people.entity';
+import { Films } from 'src/films/entities/films.entity';
+import { UpdateVehiclesDto } from './dto/update_vehicles.dto';
+import { ServiceImpl } from 'src/common/serviceImpl';
+import { CommonService } from 'src/common/common.service';
+console.log('VehiclesServise')
+
+@Injectable()
+export class VehiclesService extends ServiceImpl {
+
+    constructor(
+        @InjectRepository(Vehicles)
+        public vehiclesRepository: Repository<Vehicles>,
+        @InjectRepository(VehiclesImages)
+        public imagesRepository: Repository<VehiclesImages>,
+        public commonService: CommonService
+    ) {
+        super(vehiclesRepository, imagesRepository)
+    }
+
+    async create(data: CreateVehiclesDto): Promise<Vehicles> {
+        try {
+            let newVehicle = new Vehicles();
+
+            Object.assign(newVehicle, data);
+
+            newVehicle.url = data.url || await this.createItemUniqueUrl(newVehicle);
+
+            newVehicle.pilots = data.pilots && data.pilots.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, data.pilots) : null;
+
+            newVehicle.films = data.films && data.films.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
+
+            newVehicle.created = new Date().toISOString();
+            newVehicle.edited = new Date().toISOString();
+
+            await this.vehiclesRepository.save(newVehicle);
+
+            console.log('The vehicle was crated successfully.');
+
+            return newVehicle;
+        } catch (error) {
+            console.error('Error creating vehicle:', error);
+        }
+    }
+
+    async update(vehicleId: number, updatedData?: UpdateVehiclesDto): Promise<Vehicles> {
+        try {
+            let vehicleToUpdate = await this.vehiclesRepository.findOneBy({ id: vehicleId });
+
+            Object.assign(vehicleToUpdate, updatedData);
+
+            vehicleToUpdate.pilots = updatedData.pilots && updatedData.pilots.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.pilots) : null;
+
+            vehicleToUpdate.films = updatedData.films && updatedData.films.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
+
+            vehicleToUpdate.edited = new Date().toISOString();
+            await this.vehiclesRepository.save(vehicleToUpdate);
+
+            console.log('The person was updated successfully.');
+
+            return vehicleToUpdate;
+        } catch (error) {
+            console.error('Vehicle updating error:', error);
+        }
+    }
+}

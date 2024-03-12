@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 import { Planets } from "./planets.entity";
 console.log('PlanetsImages')
 
@@ -7,10 +7,9 @@ export class PlanetsImages {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({ nullable: false })
+    @Column()
     url: string
 
-    @ManyToOne(() => Planets, (planet) => planet.images, { nullable: true, onDelete: 'CASCADE' })
-    @JoinTable()
+    @ManyToOne(() => Planets, (planet) => planet.images, { nullable: false, onDelete: 'CASCADE' })
     planets: Relation<Planets>;
 }

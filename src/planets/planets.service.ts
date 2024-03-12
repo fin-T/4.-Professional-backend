@@ -5,13 +5,14 @@ import { Repository } from 'typeorm';
 import { PlanetsImages } from './entities/planetsImages.entity';
 import { CreatePlanetsDto } from './dto/create_planets.dto';
 import { UpdatePlanetsDto } from './dto/update_planets.rto';
-import { ItemsServiceImpl } from 'src/items/items.service';
+import { People } from 'src/people/entities/people.entity';
+import { Films } from 'src/films/entities/films.entity';
+import { ServiceImpl } from 'src/common/serviceImpl';
 import { CommonService } from 'src/common/common.service';
-import { OneOfResponseTypes } from 'src/common/types/types';
 console.log('PlanetsService')
 
 @Injectable()
-export class PlanetsService extends ItemsServiceImpl<Planets> {
+export class PlanetsService extends ServiceImpl {
 
     constructor(
         @InjectRepository(Planets)
@@ -20,67 +21,54 @@ export class PlanetsService extends ItemsServiceImpl<Planets> {
         public imagesRepository: Repository<PlanetsImages>,
         public commonService: CommonService
     ) {
-        super(planetsRepository, imagesRepository, commonService)
-     }
-
-    async downloadToDBByUrl(url: string): Promise<void> {
-        try {
-            let response = await fetch(url);
-            let itemFromUrl: Partial<CreatePlanetsDto> = await response.json();
-
-            let newItem = new Planets();
-            Object.assign(newItem, itemFromUrl);
-
-            newItem.residents = (await this.commonService.getPeopleFromDBByUrls(itemFromUrl.residents));
-            newItem.films = await this.commonService.getFilmsFromDBByUrls(itemFromUrl.films);
-            newItem.species = await this.commonService.getSpecieFromDBByUrls(itemFromUrl.species);
-            newItem.created = new Date().toISOString();
-            newItem.edited = new Date().toISOString();
-
-            await this.planetsRepository.save(newItem);
-        } catch (error) {
-            console.error('Error downoading person to DB by url:', error);
-        }
+        super(planetsRepository, imagesRepository)
     }
 
-    async create(data: CreatePlanetsDto): Promise<OneOfResponseTypes> {
+    async create(data: CreatePlanetsDto): Promise<Planets> {
         try {
-            let newItem = new Planets();
+            let newPlanet = new Planets();
 
-            Object.assign(newItem, data);
+            Object.assign(newPlanet, data);
 
-            if (!data.url) newItem.url = await this.createItemUniqueUrl(newItem);
+            newPlanet.url = data.url || await this.createItemUniqueUrl(newPlanet);
 
-            newItem.created = new Date().toISOString();
+            newPlanet.residents = data.residents && data.residents.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, data.residents) : null;
 
-            let savedNewItem = await this.planetsRepository.save(newItem);
+            newPlanet.films = data.films && data.films.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
 
-            console.log('The planet was created successfully.');
+            newPlanet.created = new Date().toISOString();
+            newPlanet.edited = new Date().toISOString();
 
-            return await this.update(savedNewItem.id, data);
+            await this.planetsRepository.save(newPlanet);
+
+            console.log('The planet was created succesfully.');
+
+            return newPlanet;
         } catch (error) {
             console.error('Error creating planet:', error);
         }
     }
 
-    async update(id: number, updatedData?: UpdatePlanetsDto): Promise<OneOfResponseTypes> {
+    async update(planetId: number, updatedData?: UpdatePlanetsDto): Promise<Planets> {
         try {
-            let itemToUpdate = await this.planetsRepository.findOneBy({ id: id });
+            let planetToUpdate = await this.planetsRepository.findOneBy({ id: planetId });
 
-            itemToUpdate.residents = await this.commonService.getPeopleFromDBByUrls(updatedData.residents);
-            itemToUpdate.films = await this.commonService.getFilmsFromDBByUrls(updatedData.films)
-            itemToUpdate.species = await this.commonService.getSpecieFromDBByUrls(updatedData.species);
+            Object.assign(planetToUpdate, updatedData);
 
-            itemToUpdate.edited = new Date().toDateString();
+            planetToUpdate.residents = updatedData.residents && updatedData.residents.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.residents) : null;
 
-            let updatedItem = Object.assign(itemToUpdate, updatedData);
-            let imageUrls = updatedItem.images.map(image => image.url);
-            itemToUpdate.images = await this.commonService.getPlanetsImagesFromDBByUrls(imageUrls);
-            await this.planetsRepository.save(updatedItem);
+            planetToUpdate.films = updatedData.films && updatedData.films.length > 0 ? 
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null; 
+
+            planetToUpdate.edited = new Date().toISOString();
+            await this.planetsRepository.save(planetToUpdate);
 
             console.log('The planet was updated successfully.');
 
-            return await this.setItemDataForResponse(updatedItem.id);
+            return planetToUpdate;
         } catch (error) {
             console.error('Planet updating error:', error);
         }

@@ -4,6 +4,8 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany
 import { PeopleImages } from "./peopleImages.entity";
 import { Planets } from "src/planets/entities/planets.entity";
 import { Species } from "src/species/entities/species.entity";
+import { Vehicles } from "src/vehicles/entities/vehicles.entity";
+import { Starships } from "src/starships/entities/starships.entity";
 console.log('People')
 @Entity()
 @Unique(['url'])
@@ -46,13 +48,13 @@ export class People {
     @ManyToMany(() => Species, (specie) => specie.people, { nullable: true })
     species: Species[];
 
-    // @ManyToMany(() => Vehicle, (vehicle) => vehicle.pilots, { nullable: true })
-    // @JoinTable()
-    // vehicle: Vehicle[];
+    @ManyToMany(() => Vehicles, (vehicle) => vehicle.pilots, { nullable: true })
+    @JoinTable()
+    vehicles: Vehicles[];
 
-    // @ManyToMany(() => Starship, (starship) => starship.pilots, { nullable: true })
-    // @JoinTable()
-    // starships: Starship[];
+    @ManyToMany(() => Starships, (starship) => starship.pilots, { nullable: true })
+    @JoinTable()
+    starships: Starships[];
 
     @Column()
     created: string;

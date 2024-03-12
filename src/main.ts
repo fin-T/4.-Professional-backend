@@ -6,16 +6,17 @@ import { createDB, downloadDataToDB } from './dbinitializer/dbinitializer';
 import { RequestInterceptor } from './interceptors/requestInterceptor';
 console.log('Main');
 async function bootstrap() {
-  // await createDB();
+  await createDB();
 
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
   }),);
-  app.useGlobalInterceptors(new RequestInterceptor())
   
-  // await downloadDataToDB(app);
+  app.useGlobalInterceptors(new RequestInterceptor())
+
+  await downloadDataToDB(app);
 
   const config = new DocumentBuilder()
     .setTitle('SWapi')

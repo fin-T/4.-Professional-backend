@@ -8,14 +8,13 @@ import { People } from 'src/people/entities/people.entity';
 import { PeopleImages } from 'src/people/entities/peopleImages.entity';
 import { Planets } from 'src/planets/entities/planets.entity';
 import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
-import { PeopleService } from 'src/people/people.service';
-import { PlanetsService } from 'src/planets/planets.service';
-import { Repository } from 'typeorm';
-import { CommonService } from 'src/common/common.service';
-import { ItemsServiceImpl } from 'src/items/items.service';
 import { Species } from 'src/species/entities/species.entity';
 import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
-import { SpeciesService } from 'src/species/species.service';
+import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
+import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
+import { Starships } from 'src/starships/entities/starships.entity';
+import { StarshipsImages } from 'src/starships/entities/starshipsImages.entity';
+import { CommonService } from 'src/common/common.service';
 console.log('FilmsModule');
 
 @Module({
@@ -28,23 +27,23 @@ console.log('FilmsModule');
       Planets,
       PlanetsImages,
       Species,
-      SpeciesImages
+      SpeciesImages,
+      Vehicles,
+      VehiclesImages,
+      Starships,
+      StarshipsImages
     ]),
   ],
   providers: [
     CommonService,
-    ItemsServiceImpl,
-    PeopleService,
-    FilmsService,
-    SpeciesService,
-    PlanetsService,
-    Repository
+    FilmsService
   ],
   controllers: [
     FilmsController
   ],
   exports: [
-    TypeOrmModule, 
+    FilmsModule,
+    TypeOrmModule
   ]
 })
 export class FilmsModule { }

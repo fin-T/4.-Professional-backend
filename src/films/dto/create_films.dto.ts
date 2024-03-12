@@ -1,4 +1,4 @@
-import { IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
+import { ArrayUnique, IsArray, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
 import { IsDateFormat } from "src/validators/isDateFormat";
 console.log('CreateFilmsDto');
 
@@ -7,7 +7,7 @@ export class CreateFilmsDto {
     readonly title: string;
 
     @IsOptional()
-    @IsNumberString()
+    @IsNumber()
     readonly episode_id: number;
 
     @IsOptional()
@@ -29,31 +29,35 @@ export class CreateFilmsDto {
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly characters: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly planets: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly starships: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly vehicles: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly species: string[];
     
     @IsOptional()
     @IsUrl()
-    @IsString()
     readonly url: string;
 }

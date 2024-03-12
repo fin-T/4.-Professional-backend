@@ -3,84 +3,72 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Species } from './entities/species.entity';
 import { Repository } from 'typeorm';
 import { SpeciesImages } from './entities/speciesImages.entity';
-import { ItemsServiceImpl } from 'src/items/items.service';
 import { CreateSpeciesDto } from './dto/create_species.dto';
-import { CommonService } from 'src/common/common.service';
-import { OneOfResponseTypes } from 'src/common/types/types';
 import { UpdateSpeciesDto } from './dto/update_spacies.dto';
+import { People } from 'src/people/entities/people.entity';
+import { Films } from 'src/films/entities/films.entity';
+import { ServiceImpl } from 'src/common/serviceImpl';
+import { CommonService } from 'src/common/common.service';
 console.log('SpeciesService')
 
 @Injectable()
-export class SpeciesService extends ItemsServiceImpl<Species>{
+export class SpeciesService extends ServiceImpl {
 
     constructor(
         @InjectRepository(Species)
         public speciesRepository: Repository<Species>,
         @InjectRepository(SpeciesImages)
         public imagesRepository: Repository<SpeciesImages>,
-        public commonService: CommonService,
+        public commonService: CommonService
     ) {
-        super(speciesRepository, imagesRepository, commonService)
+        super(speciesRepository, imagesRepository)
     }
 
-    async downloadToDBByUrl(url: string): Promise<void> {
+    async create(data: CreateSpeciesDto): Promise<Species> {
         try {
-            let response = await fetch(url);
-            let itemFromUrl: Partial<CreateSpeciesDto> = await response.json();
+            let newSpecie = new Species();
 
-            let newItem = new Species();
-            Object.assign(newItem, itemFromUrl);
+            Object.assign(newSpecie, data);
 
-            newItem.homeworld = (await this.commonService.getPlanetsFromDBByUrls([itemFromUrl.homeworld]))[0]
-            newItem.people = await this.commonService.getPeopleFromDBByUrls(itemFromUrl.people);
-            newItem.films = await this.commonService.getFilmsFromDBByUrls(itemFromUrl.films);
-            newItem.created = new Date().toISOString();
-            newItem.edited = new Date().toISOString();
+            newSpecie.url = data.url || await this.createItemUniqueUrl(newSpecie);
 
-            await this.speciesRepository.save(newItem);
-        } catch (error) {
-            console.error('Error downoading specie to DB by url:', error);
-        }
-    }
+            newSpecie.people = data.people && data.people.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, data.people) : null;
 
-    async create(data: CreateSpeciesDto): Promise<OneOfResponseTypes> {
-        try {
-            let newItem = new Species();
+            newSpecie.films = data.films && data.films.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
 
-            Object.assign(newItem, data);
+            newSpecie.created = new Date().toISOString();
+            newSpecie.edited = new Date().toISOString();
 
-            if (!data.url) newItem.url = await this.createItemUniqueUrl(newItem);
+            await this.speciesRepository.save(newSpecie);
 
-            newItem.created = new Date().toISOString();
+            console.log('The specie was crated successfully.');
 
-            let savedNewItem = await this.speciesRepository.save(newItem);
-
-            console.log('The specie was created successfully.');
-
-            return await this.update(savedNewItem.id, data);
+            return newSpecie;
         } catch (error) {
             console.error('Error creating specie:', error);
         }
     }
 
-    async update(id: number, updatedData?: UpdateSpeciesDto): Promise<OneOfResponseTypes> {
+    async update(specieId: number, updatedData?: UpdateSpeciesDto): Promise<Species> {
         try {
-            let itemToUpdate = await this.speciesRepository.findOneBy({ id: id });
+            let specieToUpdate = await this.speciesRepository.findOneBy({ id: specieId });
 
-            itemToUpdate.homeworld = updatedData.homeworld ?
-                await this.commonService.getPeopleFromDBByUrls([updatedData.homeworld])[0] : null;
-            itemToUpdate.people = await this.commonService.getPeopleFromDBByUrls(updatedData.people);
-            itemToUpdate.films = await this.commonService.getFilmsFromDBByUrls(updatedData.films);
-            itemToUpdate.edited = new Date().toDateString();
-            let updatedItem = Object.assign(itemToUpdate, updatedData);
-            let imageUrls = updatedItem.images.map(image => image.url);
-            itemToUpdate.images = await this.commonService.getSpecieImagesFromDBByUrls(imageUrls);
+            Object.assign(specieToUpdate, updatedData);
 
-            await this.speciesRepository.save(updatedItem);
+            specieToUpdate.people = updatedData.people && updatedData.people.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.people) : null;
+
+            specieToUpdate.films = updatedData.films && updatedData.films.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
+
+            specieToUpdate.edited = new Date().toISOString();
+            await this.speciesRepository.save(specieToUpdate);
 
             console.log('The specie was updated successfully.');
 
-            return await this.setItemDataForResponse(updatedItem.id);
+            return specieToUpdate;
         } catch (error) {
             console.error('Specie updating error:', error);
         }

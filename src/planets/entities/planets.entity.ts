@@ -1,8 +1,9 @@
 import { People } from "src/people/entities/people.entity";
-import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
+import {
+    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique
+} from "typeorm";
 import { PlanetsImages } from "./planetsImages.entity";
 import { Films } from "src/films/entities/films.entity";
-import { Species } from "src/species/entities/species.entity";
 console.log('Planets')
 
 @Entity()
@@ -44,9 +45,6 @@ export class Planets {
     @ManyToMany(() => Films, (film) => film.planets, { nullable: true })
     films: Films[];
 
-    @OneToMany(() => Species, (specie) => specie.homeworld, {nullable: true})
-    species: Species[];
-
     @Column()
     created: string;
 
@@ -57,5 +55,6 @@ export class Planets {
     url: string;
 
     @OneToMany(() => PlanetsImages, (images) => images.planets, { nullable: true })
+    @JoinTable()
     images: Relation<PlanetsImages>[];
 }

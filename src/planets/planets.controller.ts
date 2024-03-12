@@ -4,11 +4,9 @@ import { PlanetsService } from './planets.service';
 import { CreatePlanetsDto } from './dto/create_planets.dto';
 import { UpdatePlanetsDto } from './dto/update_planets.rto';
 import { ImagesDto } from 'src/common/dto/images.dto';
-import { PeopleService } from 'src/people/people.service';
-import { FilmsService } from 'src/films/films.service';
-import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants';
-import { ItemTypes, OneOfResponseTypes } from 'src/common/types/types';
-import { SpeciesService } from 'src/species/species.service';
+import { OneOfItems } from 'src/common/types/types';
+import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
+import { CommonService } from 'src/common/common.service';
 console.log('PlanetsController')
 
 @ApiTags('Planets')
@@ -16,27 +14,26 @@ console.log('PlanetsController')
 export class PlanetsController {
     constructor(
         private planetsService: PlanetsService,
-        private peopleService: PeopleService,
-        private filmsService: FilmsService,
-        private speciesService: SpeciesService,
+        private commonService: CommonService
     ) { }
 
     @Post()
     @ApiOperation({
-        summary: 'Создание планеты.',
-        description: `Для создания планеты необходимо передать тело запроса с обязательным полем <b>name</b>.<br>
-        Поля доступные для заполнения: <b>name</b>, <b>rotation_period</b>, <b>orbital_period</b>, <b>diameter</b>, 
-        <b>climate</b>, <b>gravity</b>, <b>terrain</b>, <b>surface_water</b>, <b>population</b>, <b>residents</b>, 
-        <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>films</b>, <b>url</b>. 
+        summary: 'Creating planet.',
+        description: `To create a planet, you must pass the request body with the required field <b>name</b>.<br>
+        Fields available for filling: <b>name</b>, <b>rotation_period</b>, <b>orbital_period</b>, <b>diameter</b>,
+        <b>climate</b>, <b>gravity</b>, <b>terrain</b>, <b>surface_water</b>, <b>population</b>, <b>residents< /b>,
+        <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>films</b>, <b>url</b>.
         <br>
-        Формат ввода можно посмотреть [тут](https://swapi.dev/api/planets/1/). <br>
-        <b>Будте внимательны</b>, если вы не заполняете поле <b>url</b>, 
-        то он сгенерируется автоматически уникальным значением. <br>
-        Все поля могут быть не уникальны, кроме <b>url</b>. 
-        Если вы введёте неуникальный <b>url</b>, планета не будет создана и вам вернётся соответсвующий ответ.
+        The input format can be viewed [here](https://swapi.py4e.com/api/planets/1/). <br>
+        <b>Be careful</b> if you do not fill in the <b>url</b> field,
+        then it will be generated automatically with a unique value. <br>
+        All fields may not be unique, except <b>url</b>.
+        If you enter a non-unique <b>url</b>, the planet will not be created and the corresponding response will be 
+        returned to you.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "name": "Zefira",
     "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
@@ -45,59 +42,72 @@ export class PlanetsController {
         `
     })
     @ApiBody({ type: CreatePlanetsDto, required: true })
-    async createPlanet(@Body() data: CreatePlanetsDto): Promise<OneOfResponseTypes> {
-        let unexistUrls = await this.getUnexistUrls(data);
-        if (unexistUrls.length > 0) throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistUrls}`, 404);
+    async createPlanet(@Body() data: CreatePlanetsDto): Promise<Partial<OneOfItems>> {
+        if (await this.planetsService.isItemUrlExists(data.url)) {
+            throw new HttpException('A planet with the same URL already exists.', 409)
+        }
 
-        if (!(await this.planetsService.isItemUrlExists(data.url))) return await this.planetsService.create(data);
+        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (unexistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        }
+        let newPlanet = await this.planetsService.create(data);
 
-        throw new HttpException('Планета с таким url уже существует.', 409)
+        let planetDataForResponse = this.planetsService.setItemDataForResponse(newPlanet);
+        if (!planetDataForResponse) throw new HttpException('Unknown server error.', 500);
 
+        return planetDataForResponse;
     }
 
     @Get()
     @ApiOperation({
-        summary: 'Получение планет на странице.'
+        summary: 'Getting planets on the page.'
     })
     @ApiQuery({
         type: Number,
         name: 'page',
-        description: 'Страница с планетами. Если значение не будет передано, будут получены первые 10 планет.',
+        description: 'Planets page. If no value is passed, the first 10 planets will be returned.',
         required: false,
         example: 1
     })
-    async getPlanets(@Query('page') page: number): Promise<OneOfResponseTypes[]> {
-        let totalPlanets = await this.planetsService.getTotal();
-        let totalPlanetsOnThePage = 10;
-
-        if (!page) return this.planetsService.getItemsFromThePage(1);
-
-        if (page > totalPlanets / totalPlanetsOnThePage + 1 || page < 1) {
-            let lastPage = (totalPlanets / totalPlanetsOnThePage);
-            throw new HttpException(`Не найдено. Всего страниц: ${lastPage.toFixed(0)}`, 404);
+    async getPlanets(@Query('page') page?: number): Promise<Partial<OneOfItems>[]> {
+        let planets = [];
+        if (!page) {
+            planets = await this.planetsService.getItemsFromThePage(1);
+        } else {
+            planets = await this.planetsService.getItemsFromThePage(page);
         }
 
-        return this.planetsService.getItemsFromThePage(page);
+        if (planets.length === 0) throw new HttpException('Planets not found.', 404);
+
+        if (!planets) throw new HttpException('Unknown server error.', 500);
+
+        let planetsForResponse = planets.map((vehicle) => {
+            return this.planetsService.setItemDataForResponse(vehicle)
+        })
+
+        return planetsForResponse;
     }
 
     @Put(':id')
     @ApiOperation({
-        summary: 'Обновление данных планеты.',
-        description: `Чтобы передать данные для обновления, необходимо отправить 
-        тело запроса. 
-        Поля доступные для заполнения: <b>name</b>, <b>rotation_period</b>, <b>orbital_period</b>, <b>diameter</b>, 
-        <b>climate</b>, <b>gravity</b>, <b>terrain</b>, <b>surface_water</b>, <b>population</b>, <b>residents</b>, 
-        <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>films</b>, 
+        summary: 'Updating planet data.',
+        description: `To transfer data for updating, you must send
+        request body.
+        Fields available for filling: <b>name</b>, <b>rotation_period</b>, <b>orbital_period</b>, <b>diameter</b>,
+        <b>climate</b>, <b>gravity</b>, <b>terrain</b>, <b>surface_water</b>, <b>population</b>, <b>residents< /b>,
+        <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>films</b>,
         <b>url</b>.
         <br>
-        Формат ввода можно посмотреть [тут](https://swapi.dev/api/planets/1/). <br>
-        <b>Будте внимательны</b>, если вы не заполняете поле <b>url</b>, 
-        то он сгенерируется автоматически уникальным значением. <br>
-        Все поля могут быть не уникальны, кроме <b>url</b>. 
-        Если вы введёте неуникальный <b>url</b>, планета не будет создана и вам вернётся соответсвующий ответ.
+        The input format can be viewed [here](https://swapi.py4e.com/api/planets/1/). <br>
+        <b>Be careful</b> if you do not fill in the <b>url</b> field,
+        then it will be generated automatically with a unique value. <br>
+        All fields may not be unique, except <b>url</b>.
+        If you enter a non-unique <b>url</b>, the planet will not be created and the corresponding response will be 
+        returned to you.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "name": "Roma",
     "films": [ "https://swapi.dev/api/films/4/", "https://swapi.dev/api/films/3/" ],
@@ -107,28 +117,52 @@ export class PlanetsController {
     })
     @ApiParam({ name: 'id', description: 'Planet id', type: Number })
     @ApiBody({ type: UpdatePlanetsDto, required: false })
-    async updatePerson(@Param('id') id: number, @Body() data: UpdatePlanetsDto): Promise<OneOfResponseTypes> {
-        let unexistUrls = await this.getUnexistUrls(data);
-        if (unexistUrls.length > 0) throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistUrls}`, 404);
+    async updatePlanet(@Param('id') planetId: number,
+        @Body() updatedData: UpdatePlanetsDto): Promise<Partial<OneOfItems>> {
+        if (updatedData.url && await this.planetsService.isItemUrlExists(updatedData.url)) {
+            throw new HttpException(`Url ${updatedData.url} is busied.`, 409);
+        }
 
-        let planetIds = await this.planetsService.getAllItemIds();
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
+        if (nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
+        }
 
-        if (!planetIds.includes(Number(id))) throw new HttpException('Не найдено.', 404);
+        let updatedPlanet = await this.planetsService.update(planetId, updatedData);
 
-        if (!(await this.planetsService.isItemUrlExists(data.url))) return await this.planetsService.update(Number(id), data);
+        let planetDataForResponse = this.planetsService.setItemDataForResponse(updatedPlanet);
+        if (!planetDataForResponse) throw new HttpException('Unknown server error.', 500);
 
-        throw new HttpException('Планета с таким url уже существует.', 409)
+        return planetDataForResponse;
+    }
+
+    @Delete(':id')
+    @ApiOperation({
+        summary: 'Deleting a planet.'
+    })
+    @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
+    async deletePlanet(@Param('id') planetId: number): Promise<Partial<OneOfItems>> {
+        let planetToDelete = await this.planetsService.getItem(Number(planetId));
+
+        if (!planetToDelete) throw new HttpException('Data not found.', 404);
+
+        let deletedPlanet = await this.planetsService.deleteItem(Number(planetId));
+
+        let planetDataForResponse = this.planetsService.setItemDataForResponse(deletedPlanet);
+        if (!planetDataForResponse) throw new HttpException('Item not found.', 404);
+
+        return planetDataForResponse;
     }
 
     @Post(':id/images')
     @ApiOperation({
-        summary: 'Загрузка изображений.',
-        description: `Загрузка ссылок (urls) на изображения. <br>
-        Поддерживаемые форматы: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
-        Чтобы загрузить ссылки на изображения, нужно отправить тело запроса с полем <b>ursl</b>.
+        summary: 'Downloading images.',
+        description: `Loading links (urls) to images. <br>
+        Supported formats: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
+        To download links to images, you need to send the request body with the <b>ursl</b> field.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
     }
@@ -136,63 +170,51 @@ export class PlanetsController {
     })
     @ApiBody({ type: ImagesDto, required: false })
     @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
-    async downloadImages(@Body() data: ImagesDto, @Param('id') planetId: number): Promise<OneOfResponseTypes> {
-        let planetIds = await this.planetsService.getAllItemIds();
-
-        if (!planetIds.includes(Number(planetId))) throw new HttpException('Планета не найдена.', 404);
-
-        return await this.planetsService.downloadItemImages(data, planetId)
+    async downloadImages(@Body() imagesData: ImagesDto,
+        @Param('id') planetId: number): Promise<Partial<OneOfItems>> {
+            let planet = await this.planetsService.getItem(Number(planetId));
+            if (!planet) throw new HttpException('Planet not found.', 404);
+    
+            let planetWithImages = await this.planetsService.downloadItemImages(imagesData, planet);
+            let planetDataForResponse = this.planetsService.setItemDataForResponse(planetWithImages);
+            if (!planetDataForResponse) throw new HttpException('Unknown server error.', 500);
+    
+            return planetWithImages;
     }
 
     @Delete(':planetId/images/:imageId')
     @ApiOperation({
-        summary: 'Удаление изображения.',
-        description: `Удаление ссылок (urls) на изображения по идентификаторам планеты и изображения.`
+        summary: 'Deleting an image.',
+        description: `Removing links (urls) to images by planet and image identifiers.`
     })
     @ApiParam({ type: Number, name: 'planetId', description: 'Planet id' })
     @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
     async deleteImages(
         @Param('planetId') planetId: number,
         @Param('imageId') imageId: number
-    ): Promise<OneOfResponseTypes> {
-        let planetsIds = await this.planetsService.getAllItemIds();
+    ): Promise<Partial<OneOfItems>> {
+        let planet = await this.planetsService.getItem(Number(planetId));
+        if (!planet) throw new HttpException('Planet not found.', 404);
 
-        if (!planetsIds.includes(Number(planetId))) throw new HttpException('Планета не найдена.', 404);
+        let imageToDelete = await this.planetsService.getImage(Number(imageId));
+        if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
-        let allPlanetImagesIds = await this.planetsService.getItemImageIds(Number(planetId));
+        await this.planetsService.deleteImage(imageId);
 
-        if (!allPlanetImagesIds.includes(Number(imageId))) {
-            throw new HttpException('Изображение для выбранной планеты не найдено.', 404);
-        }
+        let filmDataForResponse = this.planetsService.setItemDataForResponse(planet);
 
-        return await this.planetsService.deleteItemImage(Number(planetId), Number(imageId));
+        return filmDataForResponse;
     }
 
     @Get(':id')
     @ApiOperation({
-        summary: 'Получение планеты.'
+        summary: 'Getting a planet.'
     })
     @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
-    async getPlanet(@Param('id') id: number): Promise<OneOfResponseTypes> {
-        let allPlanetIds = await this.planetsService.getAllItemIds();
-        if (!allPlanetIds.includes(Number(id))) throw new HttpException('Планета по такому id не найден.', 404);
+    async getPlanet(@Param('id') planetId?: number): Promise<Partial<OneOfItems>> {
+        let planet = await this.planetsService.getItem(Number(planetId));
+        if (!planet) throw new HttpException('Planet not found.', 404);
 
-        return await this.planetsService.setItemDataForResponse(Number(id));
-    }
-
-    async getUnexistUrls(data: CreatePlanetsDto): Promise<string[]> {
-        let unexistUrls = [];
-        for (let key in data) {
-            let elem = data[key];
-            if (Array.isArray(elem)) {
-                if (elem.length > 0) switch (key) {
-                    case 'residents': unexistUrls.push(...await this.peopleService.getItemNonExistingUrls(elem)); break;
-                    case 'films': unexistUrls.push(...await this.filmsService.getItemNonExistingUrls(elem)); break;
-                    case 'species': unexistUrls.push(...await this.speciesService.getItemNonExistingUrls(elem)); break;
-                    default: break;
-                }
-            }
-        }
-        return unexistUrls;
+        return this.planetsService.setItemDataForResponse(planet);
     }
 }

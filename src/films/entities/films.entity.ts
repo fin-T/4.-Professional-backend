@@ -1,8 +1,12 @@
 import { People } from "src/people/entities/people.entity";
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
+import { 
+    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique 
+} from "typeorm";
 import { FilmsImages } from "./filmsImages.entity";
 import { Planets } from "src/planets/entities/planets.entity";
 import { Species } from "src/species/entities/species.entity";
+import { Vehicles } from "src/vehicles/entities/vehicles.entity";
+import { Starships } from "src/starships/entities/starships.entity";
 console.log('Films');
 
 @Entity()
@@ -11,7 +15,7 @@ export class Films {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: false })
+    @Column()
     title: string;
 
     @Column({ nullable: true })
@@ -36,13 +40,13 @@ export class Films {
     @JoinTable()
     planets: Planets[];
 
-    // @ManyToMany(() => Starship, (starship) => starship.films, { nullable: true })
-    // @JoinTable()
-    // starships: Starship[];
+    @ManyToMany(() => Starships, (starship) => starship.films, { nullable: true })
+    @JoinTable()
+    starships: Starships[];
 
-    // @ManyToMany(() => Vehicle, (vehicle) => vehicle.films, { nullable: true })
-    // @JoinTable()
-    // vehicle: Vehicle[];
+    @ManyToMany(() => Vehicles, (vehicle) => vehicle.films, { nullable: true })
+    @JoinTable()
+    vehicles: Vehicles[];
 
     @ManyToMany(() => Species, (specie) => specie.films, { nullable: true })
     @JoinTable()
@@ -58,5 +62,6 @@ export class Films {
     url: string;
 
     @OneToMany(() => FilmsImages, (images) => images.films, { nullable: true })
+    @JoinTable()
     images: Relation<FilmsImages>[];
 }

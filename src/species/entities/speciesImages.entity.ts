@@ -7,9 +7,9 @@ export class SpeciesImages {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: false })
+    @Column()
     url: string;
 
-    @ManyToOne(() => Species, (specie) => specie.images, { nullable: true, onDelete: 'CASCADE' })
+    @ManyToOne(() => Species, (specie) => specie.images, { nullable: false, onDelete: 'CASCADE' })
     species: Relation<Species>; 
 }

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumberString, IsUrl, IsArray } from "class-validator";
+import { IsString, IsOptional, IsNumberString, IsUrl, IsArray, ArrayUnique } from "class-validator";
 console.log('UpdateSpeciesDto')
 export class UpdateSpeciesDto {
     @IsOptional()
@@ -43,16 +43,17 @@ export class UpdateSpeciesDto {
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly people: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly films: string[];
 
     @IsOptional()
     @IsUrl()
-    @IsString()
     readonly url: string;
 }

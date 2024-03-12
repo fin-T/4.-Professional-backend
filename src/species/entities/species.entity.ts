@@ -1,7 +1,8 @@
 import { Films } from "src/films/entities/films.entity";
 import { People } from "src/people/entities/people.entity";
-import { Planets } from "src/planets/entities/planets.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from "typeorm";
+import { 
+    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique 
+} from "typeorm";
 import { SpeciesImages } from "./speciesImages.entity";
 console.log('Species')
 
@@ -35,10 +36,6 @@ export class Species {
     @Column({ nullable: true })
     average_lifespan: string;
 
-    @ManyToOne(() => Planets, (planet) => planet.species, { nullable: true })
-    @JoinColumn()
-    homeworld: Relation<Planets>;
-
     @Column({ nullable: true })
     language: string;
 
@@ -47,7 +44,7 @@ export class Species {
     people: People[]
 
     @ManyToMany(() => Films, (film) => film.species, { nullable: true })
-    films: Films[];
+    films: Relation<Films>[];
 
     @Column()
     created: string;

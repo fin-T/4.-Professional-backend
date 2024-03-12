@@ -2,6 +2,9 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nes
 import { Observable, map } from "rxjs";
 console.log('RequestInterceptor');
 
+/**
+ * Class for converting route handler responses.
+ */
 @Injectable()
 export class RequestInterceptor implements NestInterceptor {
     async intercept(

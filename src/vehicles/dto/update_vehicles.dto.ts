@@ -1,51 +1,55 @@
 import { ArrayUnique, IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
-console.log('CreateSpeciesDto')
-
-export class CreateSpeciesDto {
-    @IsString({ message: "name must be a string and name is required" })
+console.log('UpdateVehiclesDto')
+export class UpdateVehiclesDto {
+    @IsOptional()
+    @IsString()
     readonly name: string;
 
     @IsOptional()
     @IsString()
-    readonly classification: string;
+    readonly model: string;
 
     @IsOptional()
     @IsString()
-    readonly designation: string;
-
-    @IsOptional()
-    @IsNumberString()
-    readonly average_height: string;
-    
-    @IsOptional()
-    @IsString()
-    readonly skin_colors: string;
-    
-    @IsOptional()
-    @IsString()
-    readonly hair_colors: string;
+    readonly manufacturer: string;
 
     @IsOptional()
     @IsString()
-    readonly eye_colors: string;
+    readonly cost_in_credits: string;
 
     @IsOptional()
     @IsNumberString()
-    readonly average_lifespan: string;
-  
+    readonly length: string;
+
     @IsOptional()
-    @IsUrl()
-    readonly homeworld: string;
-    
+    @IsNumberString()
+    readonly max_atmosphering_speed: string;
+
+    @IsOptional()
+    @IsNumberString()
+    readonly crew: string;
+
+    @IsOptional()
+    @IsNumberString()
+    readonly passengers: string;
+
+    @IsOptional()
+    @IsNumberString()
+    readonly cargo_capacity: string;
+
     @IsOptional()
     @IsString()
-    readonly language: string;
+    readonly consumables: string;
+
+    @IsOptional()
+    @IsString()
+    readonly vehicle_class: string;
 
     @IsOptional()
     @IsArray()
     @ArrayUnique()
     @IsUrl({}, { each: true })
-    readonly people: string[];
+    readonly pilots: string[];
 
     @IsOptional()
     @IsArray()

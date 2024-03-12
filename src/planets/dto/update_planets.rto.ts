@@ -1,4 +1,4 @@
-import { IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
+import { ArrayUnique, IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
 console.log('UpdatePlanetsDto')
 
 export class UpdatePlanetsDto {
@@ -32,7 +32,7 @@ export class UpdatePlanetsDto {
     
     @IsOptional()
     @IsNumberString()
-    readonly surface_water: string;
+    readonly  surface_water: string;
     
     @IsOptional()
     @IsNumberString()
@@ -40,21 +40,17 @@ export class UpdatePlanetsDto {
     
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly residents: string[];
     
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly films: string[];
-
-    @IsOptional()
-    @IsArray()
-    @IsUrl({}, { each: true })
-    readonly species: string[];
     
     @IsOptional()
     @IsUrl()
-    @IsString()
     readonly url: string;
 }

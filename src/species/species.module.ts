@@ -10,12 +10,11 @@ import { Planets } from 'src/planets/entities/planets.entity';
 import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
 import { Species } from './entities/species.entity';
 import { SpeciesImages } from './entities/speciesImages.entity';
-import { PeopleService } from 'src/people/people.service';
-import { FilmsService } from 'src/films/films.service';
-import { PlanetsService } from 'src/planets/planets.service';
-import { Repository } from 'typeorm';
+import { Starships } from 'src/starships/entities/starships.entity';
+import { StarshipsImages } from 'src/starships/entities/starshipsImages.entity';
+import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
+import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
 import { CommonService } from 'src/common/common.service';
-import { ItemsServiceImpl } from 'src/items/items.service';
 console.log('SpeciesModule')
 
 @Module({
@@ -28,22 +27,22 @@ console.log('SpeciesModule')
       Planets,
       PlanetsImages,
       Species,
-      SpeciesImages
+      SpeciesImages,
+      Vehicles,
+      VehiclesImages,
+      Starships,
+      StarshipsImages,
     ])
   ],
   providers: [
     CommonService,
-    ItemsServiceImpl,
-    PeopleService,
-    FilmsService,
-    SpeciesService,
-    PlanetsService,
-    Repository
+    SpeciesService
   ],
   controllers: [
     SpeciesController
   ],
   exports: [
+    SpeciesModule,
     TypeOrmModule
   ]
 })

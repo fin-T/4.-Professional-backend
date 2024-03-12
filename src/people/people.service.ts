@@ -5,17 +5,18 @@ import { People } from './entities/people.entity';
 import { PeopleImages } from './entities/peopleImages.entity';
 import { CreatePeopleDto } from './dto/create_people.dto';
 import { UpdatePeopleDto } from './dto/update_people.dto';
-import { CommonService } from 'src/common/common.service';
-import { ItemsServiceImpl } from 'src/items/items.service';
-import { OneOfResponseTypes } from 'src/common/types/types';
-import { NEVER } from 'rxjs';
+import { OneOfAllTypes, OneOfItems } from 'src/common/types/types';
 import { Planets } from 'src/planets/entities/planets.entity';
 import { Films } from 'src/films/entities/films.entity';
 import { Species } from 'src/species/entities/species.entity';
+import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
+import { Starships } from 'src/starships/entities/starships.entity';
+import { ServiceImpl } from 'src/common/serviceImpl';
+import { CommonService } from 'src/common/common.service';
 console.log('PeopleService')
 
 @Injectable()
-export class PeopleService extends ItemsServiceImpl<People> {
+export class PeopleService extends ServiceImpl {
 
     constructor(
         @InjectRepository(People)
@@ -28,74 +29,70 @@ export class PeopleService extends ItemsServiceImpl<People> {
         super(peopleRepository, imagesRepository);
     }
 
-    async create(data: CreatePeopleDto): Promise<OneOfResponseTypes> {
+    async create(data: CreatePeopleDto): Promise<People> {
         try {
             let newPerson = new People();
 
             Object.assign(newPerson, data);
-
             newPerson.url = data.url || await this.createItemUniqueUrl(newPerson);
+            
+            let planets = data.homeworld ? 
+            await this.commonService.getEntitiesByUrls(new Planets, [data.homeworld]) : null;
+            newPerson.homeworld = planets && planets.length > 0 ? planets[0] : null;
 
-            newPerson.homeworld = data.homeworld && data.homeworld?.length > 0 ?
-                (await this.commonService.getItemsByUrls(new Planets, [data.homeworld]))[0] : null;
+            newPerson.films = data.films ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
 
-            newPerson.films = data.films && data.films.length > 0 ?
-                await this.commonService.getItemsByUrls(new Films, data.films) : null;
+            newPerson.species = data.species ?
+                await this.commonService.getEntitiesByUrls(new Species, data.species) : null;
 
-            newPerson.species = data.species && data.species.length > 0 ?
-                await this.commonService.getItemsByUrls(new Species, data.species) : null;
+            newPerson.vehicles = data.vehicles ?
+                await this.commonService.getEntitiesByUrls(new Vehicles, data.vehicles) : null;
 
-            // newPeople.vehicles = data.vehicles && data.vehicles.length > 0 ?
-            //     await this.commonService.getItemsByUrls(new Vehicles, data.vehicles) : null;
-
-            // newPeople.starships = data.starships && data.starships ? 
-            //     await this.commonService.getItemsByUrls(new Starships, data.starships) : null;
+            newPerson.starships = data.starships ?
+                await this.commonService.getEntitiesByUrls(new Starships, data.starships) : null;
 
             newPerson.created = new Date().toISOString();
             newPerson.edited = new Date().toISOString();
 
-            let savedNewItem = await this.peopleRepository.save(newPerson);
+            await this.peopleRepository.save(newPerson);
 
             console.log('The person was crated successfully.');
 
-            return await this.setItemDataForResponse(savedNewItem);
+            return newPerson;
         } catch (error) {
             console.error('Error creating person:', error);
         }
     }
 
-    async update(id: number, updatedData?: UpdatePeopleDto): Promise<OneOfResponseTypes> {
+    async update(personId: number, updatedData?: UpdatePeopleDto): Promise<People> {
         try {
-            let personToUpdate = await this.peopleRepository.findOneBy({ id: id });
+            let personToUpdate = await this.peopleRepository.findOneBy({ id: personId });
 
-            if (!personToUpdate) {
-                console.log('Person not found.');
-                return null;
-            }
+            Object.assign(personToUpdate, updatedData);
 
-            let updatedPerson = Object.assign(personToUpdate, updatedData);
+            let planets = updatedData.homeworld ?
+                await this.commonService.getEntitiesByUrls(new Planets, [updatedData.homeworld]) : null;
+            personToUpdate.homeworld = planets && planets.length > 0 ? planets[0] : null;
 
-            updatedPerson.homeworld = updatedData.homeworld && updatedData.homeworld.length > 0 ?
-                (await this.commonService.getItemsByUrls(new Planets, [updatedData.homeworld]))[0] : null;
+            personToUpdate.films = updatedData.films ?
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
 
-            updatedPerson.films = updatedData.films && updatedData.films.length > 0 ?
-                await this.commonService.getItemsByUrls(new Films, updatedData.films) : null;
+            personToUpdate.species = updatedData.species ?
+                await this.commonService.getEntitiesByUrls(new Species, updatedData.species) : null;
 
-            updatedPerson.species = updatedData.species && updatedData.species.length > 0 ?
-                await this.commonService.getItemsByUrls(new Species, updatedData.species) : null;
+            personToUpdate.vehicles = updatedData.vehicles ?
+                await this.commonService.getEntitiesByUrls(new Vehicles, updatedData.vehicles) : null;
 
-            // updatedPerson.vehicles = updatedData.vehicles && updatedData.vehicles.length > 0 ? 
-            //     await this.commonService.getItemsByUrls(new Vehicles, updatedData.vehicles) : null;
+            personToUpdate.starships = updatedData.starships ?
+                await this.commonService.getEntitiesByUrls(new Starships, updatedData.starships) : null;
 
-            // updatedPerson.starships = updatedData.starships && updatedData.starships.length > 0 ? 
-            //     await this.commonService.getItemsByUrls(new Starships, updatedData.starships) : null;
-
-            updatedPerson.edited = new Date().toISOString();
-            await this.peopleRepository.save(updatedPerson);
+            personToUpdate.edited = new Date().toISOString();
+            await this.peopleRepository.save(personToUpdate);
 
             console.log('The person was updated successfully.');
 
-            return await this.setItemDataForResponse(updatedPerson);
+            return personToUpdate;
         } catch (error) {
             console.error('Person updating error:', error);
         }

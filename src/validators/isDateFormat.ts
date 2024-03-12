@@ -1,6 +1,11 @@
-import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import { 
+    registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface 
+} from 'class-validator';
 console.log('ValidatorConstraint')
 
+/**
+ * Class for creating a custom validator for a date format.
+ */
 @ValidatorConstraint({ name: 'isDateFormat', async: false })
 export class IsDateFormatConstraint implements ValidatorConstraintInterface {
     validate(value: any) {
@@ -16,6 +21,12 @@ export class IsDateFormatConstraint implements ValidatorConstraintInterface {
     }
 }
 
+/**
+ * Factory function to create a date format validation decorator
+ * 
+ * @param validationOptions Options used to pass to validation decorators.
+ * @returns Void.
+ */
 export function IsDateFormat(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
         registerDecorator({

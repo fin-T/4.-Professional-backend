@@ -5,81 +5,93 @@ import { Films } from './entities/films.entity';
 import { FilmsImages } from './entities/filmsImages.entity';
 import { CreateFilmsDto } from './dto/create_films.dto';
 import { UpdateFilmsDto } from './dto/update_films.dto';
-import { ItemsServiceImpl } from 'src/items/items.service';
+import { OneOfItems } from 'src/common/types/types';
+import { Planets } from 'src/planets/entities/planets.entity';
+import { Species } from 'src/species/entities/species.entity';
+import { People } from 'src/people/entities/people.entity';
+import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
+import { Starships } from 'src/starships/entities/starships.entity';
+import { ServiceImpl } from 'src/common/serviceImpl';
 import { CommonService } from 'src/common/common.service';
-import { OneOfResponseTypes } from 'src/common/types/types';
 console.log('FilmsService');
 
 @Injectable()
-export class FilmsService extends ItemsServiceImpl<Films> {
+export class FilmsService extends ServiceImpl {
 
     constructor(
         @InjectRepository(Films)
         public filmsRepository: Repository<Films>,
         @InjectRepository(FilmsImages)
         public imagesRepository: Repository<FilmsImages>,
-        public readonly commonService: CommonService
+        private readonly commonService: CommonService
     ) {
-        super(filmsRepository, imagesRepository, commonService);
+        super(filmsRepository, imagesRepository);
     }
 
-    async downloadToDBByUrl(url: string): Promise<void> {
+    async create(data: CreateFilmsDto): Promise<OneOfItems> {
         try {
-            let response = await fetch(url);
-            let itemFromUrl: Partial<CreateFilmsDto> = await response.json();
+            let newFilm = new Films();
 
-            let newItem = new Films();
-            Object.assign(newItem, itemFromUrl);
+            Object.assign(newFilm, data);
 
-            newItem.characters = await this.commonService.getPeopleFromDBByUrls(itemFromUrl.characters);
-            newItem.planets = await this.commonService.getPlanetsFromDBByUrls(itemFromUrl.planets);
-            newItem.species = await this.commonService.getSpecieFromDBByUrls(itemFromUrl.species);
-            newItem.created = new Date().toISOString();
-            newItem.edited = new Date().toISOString();
+            newFilm.url = data.url || await this.createItemUniqueUrl(newFilm);
 
-            await this.filmsRepository.save(newItem);
-        } catch (error) {
-            console.error('Error downoading film to DB by url:', error);
-        }
-    }
+            newFilm.characters = data.characters && data.characters.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, data.characters) : null;
 
-    async create(data: CreateFilmsDto): Promise<OneOfResponseTypes> {
-        try {
-            let newItem = new Films();
+            newFilm.planets = data.planets && data.planets.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Planets, data.planets) : null;
 
-            Object.assign(newItem, data);
+            newFilm.species = data.species && data.species.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Species, data.species) : null;
 
-            if (!data.url) newItem.url = await this.createItemUniqueUrl(newItem);
+            newFilm.vehicles = data.vehicles && data.vehicles.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Vehicles, data.vehicles) : null;
 
-            newItem.created = new Date().toISOString();
+            newFilm.starships = data.starships && data.starships.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Starships, data.starships) : null;
 
-            let savedNewItem = await this.filmsRepository.save(newItem);
+            newFilm.created = new Date().toISOString();
+            newFilm.edited = new Date().toISOString();
 
-            console.log('The film was created successfully.');
+            await this.filmsRepository.save(newFilm);
 
-            return await this.update(savedNewItem.id, data);
+            console.log('The film was crated successfully.');
+
+            return newFilm;
         } catch (error) {
             console.error('Error creating film:', error);
         }
     }
 
-    async update(id: number, updatedData?: UpdateFilmsDto): Promise<OneOfResponseTypes> {
+    async update(filmId: number, updatedData?: UpdateFilmsDto): Promise<OneOfItems> {
         try {
-            let itemToUpdate = await this.filmsRepository.findOneBy({ id: id });
+            let filmToUpdate = await this.filmsRepository.findOneBy({ id: filmId });
 
-            itemToUpdate.characters = await this.commonService.getPeopleFromDBByUrls(updatedData.characters);
-            itemToUpdate.planets = await this.commonService.getPlanetsFromDBByUrls(updatedData.planets);
-            itemToUpdate.species = await this.commonService.getSpecieFromDBByUrls(updatedData.species);
-            itemToUpdate.edited = new Date().toDateString();
+            Object.assign(filmToUpdate, updatedData);
 
-            let updatedItem = Object.assign(itemToUpdate, updatedData);
-            let imageUrls = updatedItem.images.map(image => image.url);
-            itemToUpdate.images = await this.commonService.getFilmsImagesFromDBByUrls(imageUrls);
-            await this.filmsRepository.save(updatedItem);
+            filmToUpdate.characters = updatedData.characters && updatedData.characters.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.characters) : null;
+
+            filmToUpdate.planets = updatedData.planets && updatedData.planets.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Planets, updatedData.planets) : null;
+
+            filmToUpdate.species = updatedData.species && updatedData.species.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Species, updatedData.species) : null;
+
+            filmToUpdate.vehicles = updatedData.vehicles && updatedData.vehicles.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Vehicles, updatedData.vehicles) : null;
+
+            filmToUpdate.starships = updatedData.starships && updatedData.starships.length > 0 ?
+                await this.commonService.getEntitiesByUrls(new Starships, updatedData.starships) : null;
+
+            filmToUpdate.edited = new Date().toISOString();
+            await this.filmsRepository.save(filmToUpdate);
 
             console.log('The film was updated successfully.');
 
-            return await this.setItemDataForResponse(updatedItem.id);
+            return filmToUpdate;
+
         } catch (error) {
             console.error('Film updating error:', error);
         }

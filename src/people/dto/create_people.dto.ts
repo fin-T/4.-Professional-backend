@@ -1,12 +1,11 @@
-import { IsArray, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
+import { ArrayUnique, IsArray, IsNumberString, IsOptional, IsString, IsUrl } from "class-validator";
 console.log('CreatePeopleDto');
 
 export class CreatePeopleDto {
-    @IsString()
+    @IsString({ message: "name must be a string and name is required" })
     readonly name: string;
 
     @IsOptional()
-    @IsNotEmpty()
     @IsNumberString()
     readonly height: string;
 
@@ -40,26 +39,29 @@ export class CreatePeopleDto {
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly films: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly species: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly vehicles: string[];
 
     @IsOptional()
     @IsArray()
+    @ArrayUnique()
     @IsUrl({}, { each: true })
     readonly starships: string[];
 
     @IsOptional()
     @IsUrl()
-    @IsString()
     readonly url: string;
 }

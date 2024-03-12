@@ -4,11 +4,9 @@ import { FilmsService } from './films.service';
 import { CreateFilmsDto } from './dto/create_films.dto';
 import { ImagesDto } from 'src/common/dto/images.dto';
 import { UpdateFilmsDto } from './dto/update_films.dto';
-import { PeopleService } from 'src/people/people.service';
-import { PlanetsService } from 'src/planets/planets.service';
-import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants';
-import { OneOfResponseTypes } from 'src/common/types/types';
-import { SpeciesService } from 'src/species/species.service';
+import { OneOfItems } from 'src/common/types/types';
+import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
+import { CommonService } from 'src/common/common.service';
 console.log('FilmsController');
 
 @ApiTags('Films')
@@ -16,27 +14,26 @@ console.log('FilmsController');
 export class FilmsController {
     constructor(
         private filmsService: FilmsService,
-        private peopleService: PeopleService,
-        private planetsService: PlanetsService,
-        private speciesService: SpeciesService,
+        private commonService: CommonService
     ) { }
 
     @Post()
     @ApiOperation({
-        summary: 'Создание фильма.',
-        description: `Для создания фильма необходимо передать тело запроса с обязательным полем <b>title</b>.<br>
-        Поля доступные для заполнения: <b>title</b>, <b>episode_id</b>, <b>mass</b>, <b>opening_crawl</b>, 
-        <b>director</b>, <b>producer</b>, <b>release_date</b>, <b>characters</b>, <b>planets</b>, 
+        summary: 'Creating the film.',
+        description: `To create a movie, you must pass the request body with the required <b>title</b> field.<br>
+        Fields available for filling: <b>title</b>, <b>episode_id</b>, <b>mass</b>, <b>opening_crawl</b>,
+        <b>director</b>, <b>producer</b>, <b>release_date</b>, <b>characters</b>, <b>planets</b>,
         <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>url</b>.
         <br>
-        Фрмат ввода можно посмотреть [тут](https://swapi.dev/api/films/1/).
-        <b>Будте внимательны</b>, если вы не заполняете поле <b>url</b>, 
-        то он сгенерируется автоматически уникальным значением. <br>
-        Все поля могут быть не уникальны, кроме <b>url</b>. 
-        Если вы введёте неуникальный <b>url</b>, фильм не будет создан и вам вернётся соответсвующий ответ.
+        The input format can be viewed [here](https://swapi.py4e.com/api/films/1/).
+        <b>Be careful</b> if you do not fill in the <b>url</b> field,
+        then it will be generated automatically with a unique value. <br>
+        All fields may not be unique, except <b>url</b>.
+        If you enter a non-unique <b>url</b>, the movie will not be created and the corresponding response will 
+        be returned to you.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "title": "Uvula",
     "characters": [ "https://swapi.dev/api/people/1/", "https://swapi.dev/api/people/12/" ],
@@ -45,58 +42,72 @@ export class FilmsController {
         `
     })
     @ApiBody({ type: CreateFilmsDto, required: true })
-    async createFilm(@Body() data: CreateFilmsDto): Promise<OneOfResponseTypes> {
-        let unexistUrls = await this.getUnexistUrls(data);
-        if (unexistUrls.length > 0) throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistUrls}`, 404);
+    async createFilm(@Body() data: CreateFilmsDto): Promise<Partial<OneOfItems>> {
+        if (await this.filmsService.isItemUrlExists(data.url)) {
+            throw new HttpException('A film with the same URL already exists.', 409)
+        }
 
-        if (!(await this.filmsService.isItemUrlExists(data.url))) return await this.filmsService.create(data);
+        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (unexistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        }
+        let newFilm = await this.filmsService.create(data);
 
-        throw new HttpException('Фильм с таким url уже существует.', 409)
+        let filmDataForResponse = this.filmsService.setItemDataForResponse(newFilm);
+        if (!filmDataForResponse) throw new HttpException('Unknown server error.', 500);
+
+        return filmDataForResponse;
     }
 
     @Get()
     @ApiOperation({
-        summary: 'Получение фильмов на странице.'
+        summary: 'Getting films on the page.'
     })
     @ApiQuery({
         type: Number,
         name: 'page',
-        description: 'Страница с фильмами. Если значение не будет передано, будут получены первые 10 фильмов.',
+        description: 'Movies page. If no value is passed, the first 10 movies will be returned.',
         required: false,
         example: 1
 
     })
-    async getFilms(@Query('page') page: number): Promise<OneOfResponseTypes[]> {
-        let totalFilms = await this.filmsService.getTotal();
-        let totalFilmsOnThePage = 10;
-
-        if (!page) return this.filmsService.getItemsFromThePage(1);
-
-        if (page > totalFilms / totalFilmsOnThePage + 1 || page < 1) {
-            let lastPage = (totalFilms / totalFilmsOnThePage);
-            throw new HttpException(`Не найдено. Всего страниц: ${lastPage.toFixed(0)}`, 404);
+    async getFilms(@Query('page') page?: number): Promise<Partial<OneOfItems>[]> {
+        let films = [];
+        if (!page) {
+            films = await this.filmsService.getItemsFromThePage(1);
+        } else {
+            films = await this.filmsService.getItemsFromThePage(page);
         }
 
-        return this.filmsService.getItemsFromThePage(page);
+        if (films.length === 0) throw new HttpException('Films not found.', 404);
+
+        if (!films) throw new HttpException('Unknown server error.', 500);
+
+        let filmsForResponse = films.map((film) => {
+            return this.filmsService.setItemDataForResponse(film)
+        })
+
+        return filmsForResponse;
     }
 
     @Put(':id')
     @ApiOperation({
-        summary: 'Обновление данных фильма.',
-        description: `Чтобы передать данные для обновления, необходимо отправить 
-        тело запроса. 
-        Поля доступные для заполнения: <b>title</b>, <b>episode_id</b>, <b>mass</b>, <b>opening_crawl</b>, 
-        <b>director</b>, <b>producer</b>, <b>release_date</b>, <b>characters</b>, <b>planets</b>, 
+        summary: 'Updating film data.',
+        description: `To transfer data for updating, you must send
+        request body.
+        Fields available for filling: <b>title</b>, <b>episode_id</b>, <b>mass</b>, <b>opening_crawl</b>,
+        <b>director</b>, <b>producer</b>, <b>release_date</b>, <b>characters</b>, <b>planets</b>,
         <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>url</b>.
         <br>
-        Фрмат ввода можно посмотреть [тут](https://swapi.dev/api/films/1/).
-        <b>Будте внимательны</b>, если вы не заполняете поле <b>url</b>, 
-        то он сгенерируется автоматически уникальным значением. <br>
-        Все поля могут быть не уникальны, кроме <b>url</b>. 
-        Если вы введёте неуникальный <b>url</b>, фильм не будет создан и вам вернётся соответсвующий ответ.
+        The input format can be viewed [here](https://swapi.py4e.com/api/films/1/).
+        <b>Be careful</b> if you do not fill in the <b>url</b> field,
+        then it will be generated automatically with a unique value. <br>
+        All fields may not be unique, except <b>url</b>.
+        If you enter a non-unique <b>url</b>, the movie will not be created and the corresponding response will 
+        be returned to you.
         <br><br>
         
-    Пример запроса: \n
+    Example request: \n
     {
     "title": "Uvula",
     "characters": [ "https://swapi.dev/api/people/1/", "https://swapi.dev/api/people/12/" ],
@@ -106,42 +117,53 @@ export class FilmsController {
     })
     @ApiParam({ name: 'id', description: 'Film id', type: Number })
     @ApiBody({ type: UpdateFilmsDto, required: false })
-    async updateFilm(@Param('id') id: number, @Body() data: UpdateFilmsDto): Promise<OneOfResponseTypes> {
-        let unexistUrls = await this.getUnexistUrls(data);
-        if (unexistUrls.length > 0) throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistUrls}`, 404);
+    async updateFilm(@Param('id') filmId: number,
+        @Body() updatedData: UpdateFilmsDto): Promise<Partial<OneOfItems>> {
+        if (updatedData.url && await this.filmsService.isItemUrlExists(updatedData.url)) {
+            throw new HttpException(`Url ${updatedData.url} is busied.`, 409);
+        }
 
-        let filmsIds = await this.filmsService.getAllItemIds();
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
+        if (nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
+        }
 
-        if (!filmsIds.includes(Number(id))) throw new HttpException('Не найдено.', 404);
+        let updatedFilm = await this.filmsService.update(filmId, updatedData);
 
-        if (!(await this.filmsService.isItemUrlExists(data.url))) return await this.filmsService.update(Number(id), data);
+        let filmDataForResponse = this.filmsService.setItemDataForResponse(updatedFilm);
+        if (!filmDataForResponse) throw new HttpException('Unknown server error.', 500);
 
-        throw new HttpException('Фильм с таким url уже существует.', 409)
+        return filmDataForResponse;
     }
 
     @Delete(':id')
     @ApiOperation({
-        summary: 'Удаление фильма.'
+        summary: 'Deleting a film.'
     })
     @ApiParam({ type: Number, name: 'id', description: 'Film id' })
-    async deleteFilm(@Param('id') id: number): Promise<void> {
-        let filmsIds = await this.filmsService.getAllItemIds();
+    async deleteFilm(@Param('id') filmId: number): Promise<Partial<OneOfItems>> {
+        let filmToDelete = await this.filmsService.getItem(Number(filmId));
 
-        if (!filmsIds.includes(Number(id))) throw new HttpException('Не найдено.', 404);
+        if (!filmToDelete) throw new HttpException('Data not found.', 404);
 
-        await this.filmsService.deleteItem(Number(id))
+        let deletedFilm = await this.filmsService.deleteItem(Number(filmId));
+
+        let filmDataForResponse = this.filmsService.setItemDataForResponse(deletedFilm);
+        if (!filmDataForResponse) throw new HttpException('Item not found.', 404);
+
+        return filmDataForResponse;
     }
 
     @Post(':id/images')
     @ApiOperation({
-        summary: 'Загрузка изображений.',
-        description: `Загрузка ссылок (urls) на изображения. <br>
-        Поддерживаемые форматы: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
-        Чтобы загрузить ссылки на изображения, нужно отправить тело запроса с полем <b>ursl</b>.
+        summary: 'Downloading images.',
+        description: `Loading links (urls) to images. <br>
+        Supported formats: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
+        To download links to images, you need to send the request body with the <b>ursl</b> field.
     
         <br><br>
 
-    Пример запроса: \n
+    Example request: \n
     {
     "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
     }
@@ -149,64 +171,50 @@ export class FilmsController {
     })
     @ApiBody({ type: ImagesDto, required: false })
     @ApiParam({ type: Number, name: 'id', description: 'Film id' })
-    async downloadImages(@Body() data: ImagesDto, @Param('id') filmId: number): Promise<OneOfResponseTypes> {
-        let filmsIds = await this.filmsService.getAllItemIds();
+    async downloadImages(@Body() imagesData: ImagesDto, @Param('id') filmId: number): Promise<Partial<OneOfItems>> {
+        let film = await this.filmsService.getItem(Number(filmId));
+        if (!film) throw new HttpException('Film not found.', 404);
 
-        if (!filmsIds.includes(Number(filmId))) throw new HttpException('Человек найден.', 404);
+        let filmWithImages = await this.filmsService.downloadItemImages(imagesData, film);
+        let filmDataForResponse = this.filmsService.setItemDataForResponse(filmWithImages);
+        if (!filmDataForResponse) throw new HttpException('Unknown server error.', 500);
 
-        return await this.filmsService.downloadItemImages(data, filmId)
+        return filmWithImages;
     }
 
     @Delete(':filmId/images/:imageId')
     @ApiOperation({
-        summary: 'Удаление изображения.',
-        description: `Удаление ссылок (urls) на изображения по идентификаторам фильма и изображения.`
+        summary: 'Deleting an image.',
+        description: `Removing links (urls) to images by movie and image identifiers.`
     })
     @ApiParam({ type: Number, name: 'filmId', description: 'Film id' })
     @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
     async deleteImages(
         @Param('filmId') filmId: number,
         @Param('imageId') imageId: number
-    ): Promise<OneOfResponseTypes> {
-        let filmsIds = await this.filmsService.getAllItemIds();
+    ): Promise<Partial<OneOfItems>> {
+        let film = await this.filmsService.getItem(Number(filmId));
+        if (!film) throw new HttpException('Film not found.', 404);
 
-        if (!filmsIds.includes(Number(filmId))) throw new HttpException('Фильм не найден.', 404);
+        let imageToDelete = await this.filmsService.getImage(Number(imageId));
+        if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
-        let allFilmImagesIds = await this.filmsService.getItemImageIds(Number(filmId));
+        await this.filmsService.deleteImage(imageId);
 
-        if (!allFilmImagesIds.includes(Number(imageId))) {
-            throw new HttpException('Изображение для выбранного фильма не найдено.', 404);
-        }
+        let filmDataForResponse = this.filmsService.setItemDataForResponse(film);
 
-        return await this.filmsService.deleteItemImage(Number(filmId), Number(imageId));
+        return filmDataForResponse;
     }
 
     @Get(':id')
     @ApiOperation({
-        summary: 'Получение фильма.'
+        summary: 'Getting the film.'
     })
     @ApiParam({ type: Number, name: 'id', description: 'Film id' })
-    async getPerson(@Param('id') id: number): Promise<OneOfResponseTypes> {
-        let allPlanetsIds = await this.filmsService.getAllItemIds();
-        if (!allPlanetsIds.includes(Number(id))) throw new HttpException('Фильм по такому id не найден.', 404);
+    async getPerson(@Param('id') filmId: number): Promise<Partial<OneOfItems>> {
+        let film = await this.filmsService.getItem(Number(filmId));
+        if (!film) throw new HttpException('Person not found.', 404);
 
-        return await this.filmsService.setItemDataForResponse(Number(id));
-    }
-
-    async getUnexistUrls(data: CreateFilmsDto) {
-        let unexistUrls = [];
-        for (let key in data) {
-            let elem = data[key];
-            if (Array.isArray(elem)) {
-                if (elem.length > 0) switch (key) {
-                    case 'characters': unexistUrls.push(...await this.peopleService.getItemNonExistingUrls(elem)); break;
-                    case 'planets': unexistUrls.push(...await this.planetsService.getItemNonExistingUrls(elem)); break;
-                    case 'species': unexistUrls.push(...await this.speciesService.getItemNonExistingUrls(elem)); break;
-                    default: break;
-                }
-            }
-        }
-        return unexistUrls;
+        return this.filmsService.setItemDataForResponse(film);
     }
 }
-

@@ -1,22 +1,21 @@
 import { Module } from '@nestjs/common';
-import { PeopleController } from './people.controller';
-import { PeopleService } from './people.service';
+import { StarshipsService } from './starships.service';
+import { StarshipsController } from './starships.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { People } from './entities/people.entity';
-import { PeopleImages } from './entities/peopleImages.entity';
 import { Films } from 'src/films/entities/films.entity';
 import { FilmsImages } from 'src/films/entities/filmsImages.entity';
+import { People } from 'src/people/entities/people.entity';
+import { PeopleImages } from 'src/people/entities/peopleImages.entity';
 import { Planets } from 'src/planets/entities/planets.entity';
 import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
 import { Species } from 'src/species/entities/species.entity';
 import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
-import { StarshipsImages } from 'src/starships/entities/starshipsImages.entity';
-import { Starships } from 'src/starships/entities/starships.entity';
+import { Starships } from './entities/starships.entity';
+import { StarshipsImages } from './entities/starshipsImages.entity';
 import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
 import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
 import { CommonService } from 'src/common/common.service';
-console.log('PeopleModule')
-
+console.log('StarshipsModule');
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -34,16 +33,16 @@ console.log('PeopleModule')
       StarshipsImages
     ]),
   ],
-  controllers: [
-    PeopleController
-  ],
   providers: [
     CommonService,
-    PeopleService
+    StarshipsService,
+  ],
+  controllers: [
+    StarshipsController
   ],
   exports: [
-    PeopleModule,
+    StarshipsModule,
     TypeOrmModule
   ]
 })
-export class PeopleModule { }
+export class StarshipsModule { }
