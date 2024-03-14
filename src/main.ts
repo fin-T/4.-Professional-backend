@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { createDB, downloadDataToDB } from './dbinitializer/dbinitializer';
 import { RequestInterceptor } from './interceptors/requestInterceptor';
+import { HttpExceptionFilter } from './exeptionFilters/httpExeptionFilter';
 console.log('Main');
 async function bootstrap() {
   await createDB();
@@ -13,21 +14,24 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
   }),);
-  
+
   app.useGlobalInterceptors(new RequestInterceptor())
 
+  // Downloading data to DB for project work.
   await downloadDataToDB(app);
 
   const config = new DocumentBuilder()
-    .setTitle('SWapi')
-    .setDescription('The Star wars apis')
-    .setVersion('1.0.0')
-    .build();
+  .setTitle('SWapi')
+  .setDescription('The Star wars apis')
+  .setVersion('1.0.0')
+  .build();
   const document = SwaggerModule.createDocument(app, config);
-
+  
   SwaggerModule.setup('api', app, document, {
     jsonDocumentUrl: 'openapi.jsof'
   });
+  
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(3000);
 }

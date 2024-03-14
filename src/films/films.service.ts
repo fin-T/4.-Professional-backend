@@ -36,20 +36,20 @@ export class FilmsService extends ServiceImpl {
 
             newFilm.url = data.url || await this.createItemUniqueUrl(newFilm);
 
-            newFilm.characters = data.characters && data.characters.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, data.characters) : null;
+            newFilm.characters = data.characters ?
+                await this.commonService.getEntitiesByUrls(new People, data.characters) : [];
 
-            newFilm.planets = data.planets && data.planets.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Planets, data.planets) : null;
+            newFilm.planets = data.planets ?
+                await this.commonService.getEntitiesByUrls(new Planets, data.planets) : [];
 
-            newFilm.species = data.species && data.species.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Species, data.species) : null;
+            newFilm.species = data.species ?
+                await this.commonService.getEntitiesByUrls(new Species, data.species) : [];
 
-            newFilm.vehicles = data.vehicles && data.vehicles.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Vehicles, data.vehicles) : null;
+            newFilm.vehicles = data.vehicles ?
+                await this.commonService.getEntitiesByUrls(new Vehicles, data.vehicles) : [];
 
-            newFilm.starships = data.starships && data.starships.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Starships, data.starships) : null;
+            newFilm.starships = data.starships ?
+                await this.commonService.getEntitiesByUrls(new Starships, data.starships) : [];
 
             newFilm.created = new Date().toISOString();
             newFilm.edited = new Date().toISOString();
@@ -70,20 +70,20 @@ export class FilmsService extends ServiceImpl {
 
             Object.assign(filmToUpdate, updatedData);
 
-            filmToUpdate.characters = updatedData.characters && updatedData.characters.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, updatedData.characters) : null;
+            filmToUpdate.characters = updatedData.characters ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.characters) : [];
 
-            filmToUpdate.planets = updatedData.planets && updatedData.planets.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Planets, updatedData.planets) : null;
+            filmToUpdate.planets = updatedData.planets ?
+                await this.commonService.getEntitiesByUrls(new Planets, updatedData.planets) : [];
 
-            filmToUpdate.species = updatedData.species && updatedData.species.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Species, updatedData.species) : null;
+            filmToUpdate.species = updatedData.species ?
+                await this.commonService.getEntitiesByUrls(new Species, updatedData.species) : [];
 
-            filmToUpdate.vehicles = updatedData.vehicles && updatedData.vehicles.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Vehicles, updatedData.vehicles) : null;
+            filmToUpdate.vehicles = updatedData.vehicles ?
+                await this.commonService.getEntitiesByUrls(new Vehicles, updatedData.vehicles) : [];
 
-            filmToUpdate.starships = updatedData.starships && updatedData.starships.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Starships, updatedData.starships) : null;
+            filmToUpdate.starships = updatedData.starships ?
+                await this.commonService.getEntitiesByUrls(new Starships, updatedData.starships) : [];
 
             filmToUpdate.edited = new Date().toISOString();
             await this.filmsRepository.save(filmToUpdate);

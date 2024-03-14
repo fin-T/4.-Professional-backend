@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
 import { SpeciesService } from './species.service';
 import { ApiOperation, ApiBody, ApiQuery, ApiParam, ApiTags } from '@nestjs/swagger';
 import { OneOfItems } from 'src/common/types/types';
@@ -7,10 +7,18 @@ import { UpdateSpeciesDto } from './dto/update_spacies.dto';
 import { ImagesDto } from 'src/common/dto/images.dto';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
 import { CommonService } from 'src/common/common.service';
+import { HttpExceptionFilter } from 'src/exeptionFilters/httpExeptionFilter';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { CreateUserDto } from 'src/auth/dto/create_user.dto';
+import { CREATE, DELETE, DELETE_IMAGES, DOWNLOAD_IMAGES, UPDATE } from './descriptions/species.descriptions';
 console.log('SpeciesController')
 
 @ApiTags('Species')
 @Controller('species')
+@UseFilters(HttpExceptionFilter)
 export class SpeciesController {
     constructor(
         private speciesService: SpeciesService,
@@ -18,30 +26,10 @@ export class SpeciesController {
     ) { }
 
     @Post()
-    @ApiOperation({
-        summary: 'Creating specie.',
-        description: `To create a specie, you must pass the request body with the required <b>name</b> field.<br>
-        Fields available for filling: <b>name</b>, <b>classification</b>, <b>designation</b>, <b>average_height</b>,
-        <b>skin_colors</b>, <b>hair_colors</b>, <b>eye_colors</b>, <b>average_lifespan</b>, <b>homeworld</b>,
-        <b>language</b>, <b>people</b>, <b>language</b>, <b>films</b>, <b>url</b>.
-        <br>
-        The input format can be viewed [here](https://swapi.py4e.com/api/species/1/). <br>
-        <b>Be careful</b> if you do not fill in the <b>url</b> field,
-        then it will be generated automatically with a unique value. <br>
-        All fields may not be unique, except <b>url</b>.
-        If you enter a non-unique <b>url</b>, the specie will not be created and the corresponding response will be 
-        returned to you.
-        <br><br>
-        
-    Example request: \n
-    {
-    "name": "Zefiradant",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
-    "url": "https://some-domain.dev/api/species/98/"
-    }
-        `
-    })
-    @ApiBody({ type: CreateSpeciesDto, required: true })
+    @ApiOperation({ summary: 'Creating specie.', description: CREATE })
+    @ApiBody({ type: CreateSpeciesDto && CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async createSpecie(@Body() data: CreateSpeciesDto): Promise<Partial<OneOfItems>> {
         if (await this.speciesService.isItemUrlExists(data.url)) {
             throw new HttpException('A specie with the same URL already exists.', 409)
@@ -51,25 +39,19 @@ export class SpeciesController {
         if (unexistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
         }
+
         let newSpecie = await this.speciesService.create(data);
-
-        let specieDataForResponse = this.speciesService.setItemDataForResponse(newSpecie);
-        if (!specieDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return specieDataForResponse;
+        return this.speciesService.setItemDataForResponse(newSpecie);
     }
 
     @Get()
-    @ApiOperation({
-        summary: 'Getting species on the page.'
-    })
+    @ApiOperation({ summary: 'Getting species on the page.' })
     @ApiQuery({
-        type: Number,
-        name: 'page',
+        type: Number, name: 'page',
         description: 'Species page. If no value is passed, the first 10 species will be returned.',
-        required: false,
-        example: 1
+        required: false, example: 1
     })
+    @Roles(Role.Admin, Role.User)
     async getSpecies(@Query('page') page?: number): Promise<Partial<OneOfItems>[]> {
         let species = [];
         if (!page) {
@@ -80,8 +62,6 @@ export class SpeciesController {
 
         if (species.length === 0) throw new HttpException('Species not found.', 404);
 
-        if (!species) throw new HttpException('Unknown server error.', 500);
-
         let speciesForResponse = species.map((specie) => {
             return this.speciesService.setItemDataForResponse(specie)
         })
@@ -90,35 +70,16 @@ export class SpeciesController {
     }
 
     @Put(':id')
-    @ApiOperation({
-        summary: 'Updating specie data.',
-        description: `To transfer data for updating, you must send
-        request body.
-        Fields available for filling: <b>name</b>, <b>classification</b>, <b>designation</b>, <b>average_height</b>,
-        <b>skin_colors</b>, <b>hair_colors</b>, <b>eye_colors</b>, <b>average_lifespan</b>, <b>homeworld</b>,
-        <b>language</b>, <b>people</b>, <b>language</b>, <b>films</b>, <b>url</b>.
-        <br>
-        The input format can be viewed [here](https://swapi.py4e.com/api/species/1/). <br>
-        <b>Be careful</b> if you do not fill in the <b>url</b> field,
-        then it will be generated automatically with a unique value. <br>
-        All fields may not be unique, except <b>url</b>.
-        If you enter a non-unique <b>url</b>, the specie will not be created and the corresponding response will be 
-        returned to you.
-        <br><br>
-        
-    Example request: \n
-    {
-    "name": "Zefiradant",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
-    "url": "https://some-domain.dev/api/species/98/"
-    }
-        `
-    })
+    @ApiOperation({ summary: 'Updating specie data.', description: UPDATE })
     @ApiParam({ name: 'id', description: 'Specie id', type: Number })
-    @ApiBody({ type: UpdateSpeciesDto, required: false })
-    async updateSpecie(
-        @Param('id') specieId: number, @Body() updatedData: UpdateSpeciesDto
-    ): Promise<Partial<OneOfItems>> {
+    @ApiBody({ type: UpdateSpeciesDto && CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async updateSpecie(@Param('id') specieId: number,
+        @Body() updatedData: UpdateSpeciesDto): Promise<Partial<OneOfItems>> {
+        let specieToUpdate = await this.speciesService.getItem(Number(specieId));
+        if (!specieToUpdate) throw new BadRequestException('Specie not found');
+
         if (updatedData.url && await this.speciesService.isItemUrlExists(updatedData.url)) {
             throw new HttpException(`Url ${updatedData.url} is busied.`, 409);
         }
@@ -129,70 +90,49 @@ export class SpeciesController {
         }
 
         let updatedSpecie = await this.speciesService.update(specieId, updatedData);
-
-        let specieDataForResponse = this.speciesService.setItemDataForResponse(updatedSpecie);
-        if (!specieDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return specieDataForResponse;
+        return this.speciesService.setItemDataForResponse(updatedSpecie);
     }
 
     @Delete(':id')
-    @ApiOperation({
-        summary: 'Deleting a specie.'
-    })
+    @ApiOperation({ summary: 'Deleting a specie.', description: DELETE })
     @ApiParam({ type: Number, name: 'id', description: 'Specie id' })
+    @ApiBody({ type: CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async deleteSpecie(@Param('id') specieId: number): Promise<Partial<OneOfItems>> {
         let specieToDelete = await this.speciesService.getItem(Number(specieId));
-
         if (!specieToDelete) throw new HttpException('Data not found.', 404);
 
         let deletedSpecie = await this.speciesService.deleteItem(Number(specieId));
+        if (!deletedSpecie) throw new HttpException('Item not found.', 404);
 
-        let specieDataForResponse = this.speciesService.setItemDataForResponse(deletedSpecie);
-        if (!specieDataForResponse) throw new HttpException('Item not found.', 404);
-
-        return specieDataForResponse;
+        return this.speciesService.setItemDataForResponse(deletedSpecie);
     }
 
     @Post(':id/images')
-    @ApiOperation({
-        summary: 'Downloading images.',
-        description: `Loading links (urls) to images. <br>
-        Supported formats: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
-        To download links to images, you need to send the request body with the <b>ursl</b> field.
-        <br><br>
-        
-    Example request: \n
-    {
-    "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
-    }
-        `
-    })
-    @ApiBody({ type: ImagesDto, required: false })
+    @ApiOperation({ summary: 'Downloading images.', description: DOWNLOAD_IMAGES })
+    @ApiBody({ type: ImagesDto && CreateUserDto, required: true })
     @ApiParam({ type: Number, name: 'id', description: 'Specie id' })
-    async downloadImages(
-        @Body() imagesData: ImagesDto, @Param('id') specieId: number): Promise<Partial<OneOfItems>> {
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async downloadImages(@Body() imagesData: ImagesDto,
+        @Param('id') specieId: number): Promise<Partial<OneOfItems>> {
         let specie = await this.speciesService.getItem(Number(specieId));
         if (!specie) throw new HttpException('Specie not found.', 404);
 
         let specieplanetWithImages = await this.speciesService.downloadItemImages(imagesData, specie);
-        let specieDataForResponse = this.speciesService.setItemDataForResponse(specieplanetWithImages);
-        if (!specieDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return specieplanetWithImages;
+        return this.speciesService.setItemDataForResponse(specieplanetWithImages);
     }
 
     @Delete(':specieId/images/:imageId')
-    @ApiOperation({
-        summary: 'Deleting an image.',
-        description: `Removing links (urls) to images by specie and image identifiers.`
-    })
+    @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
     @ApiParam({ type: Number, name: 'specieId', description: 'Specie id' })
     @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-    async deleteImages(
-        @Param('specieId') specieId: number,
-        @Param('imageId') imageId: number
-    ): Promise<Partial<OneOfItems>> {
+    @ApiBody({ type: CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async deleteImages(@Param('specieId') specieId: number,
+        @Param('imageId') imageId: number): Promise<Partial<OneOfItems>> {
         let specie = await this.speciesService.getItem(Number(specieId));
         if (!specie) throw new HttpException('Specie not found.', 404);
 
@@ -200,17 +140,13 @@ export class SpeciesController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.speciesService.deleteImage(imageId);
-
-        let specieDataForResponse = this.speciesService.setItemDataForResponse(specie);
-
-        return specieDataForResponse;
+        return this.speciesService.setItemDataForResponse(specie);
     }
 
     @Get(':id')
-    @ApiOperation({
-        summary: 'Getting a specie.'
-    })
+    @ApiOperation({ summary: 'Getting a specie.' })
     @ApiParam({ type: Number, name: 'id', description: 'Specie id' })
+    @Roles(Role.Admin, Role.User)
     async getSpecie(@Param('id') specieId: number): Promise<Partial<OneOfItems>> {
         let specie = await this.speciesService.getItem(Number(specieId));
         if (!specie) throw new HttpException('Specie not found.', 404);

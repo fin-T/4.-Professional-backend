@@ -35,22 +35,22 @@ export class PeopleService extends ServiceImpl {
 
             Object.assign(newPerson, data);
             newPerson.url = data.url || await this.createItemUniqueUrl(newPerson);
-            
-            let planets = data.homeworld ? 
-            await this.commonService.getEntitiesByUrls(new Planets, [data.homeworld]) : null;
+
+            let planets = data.homeworld ?
+                await this.commonService.getEntitiesByUrls(new Planets, [data.homeworld]) : [];
             newPerson.homeworld = planets && planets.length > 0 ? planets[0] : null;
 
             newPerson.films = data.films ?
-                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : [];
 
             newPerson.species = data.species ?
-                await this.commonService.getEntitiesByUrls(new Species, data.species) : null;
+                await this.commonService.getEntitiesByUrls(new Species, data.species) : [];
 
             newPerson.vehicles = data.vehicles ?
-                await this.commonService.getEntitiesByUrls(new Vehicles, data.vehicles) : null;
+                await this.commonService.getEntitiesByUrls(new Vehicles, data.vehicles) : [];
 
             newPerson.starships = data.starships ?
-                await this.commonService.getEntitiesByUrls(new Starships, data.starships) : null;
+                await this.commonService.getEntitiesByUrls(new Starships, data.starships) : [];
 
             newPerson.created = new Date().toISOString();
             newPerson.edited = new Date().toISOString();
@@ -72,20 +72,20 @@ export class PeopleService extends ServiceImpl {
             Object.assign(personToUpdate, updatedData);
 
             let planets = updatedData.homeworld ?
-                await this.commonService.getEntitiesByUrls(new Planets, [updatedData.homeworld]) : null;
-            personToUpdate.homeworld = planets && planets.length > 0 ? planets[0] : null;
+                await this.commonService.getEntitiesByUrls(new Planets, [updatedData.homeworld]) : [];
+            personToUpdate.homeworld = planets && planets.length > 0 ? planets[0] : [];
 
             personToUpdate.films = updatedData.films ?
-                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : [];
 
             personToUpdate.species = updatedData.species ?
-                await this.commonService.getEntitiesByUrls(new Species, updatedData.species) : null;
+                await this.commonService.getEntitiesByUrls(new Species, updatedData.species) : [];
 
             personToUpdate.vehicles = updatedData.vehicles ?
-                await this.commonService.getEntitiesByUrls(new Vehicles, updatedData.vehicles) : null;
+                await this.commonService.getEntitiesByUrls(new Vehicles, updatedData.vehicles) : [];
 
             personToUpdate.starships = updatedData.starships ?
-                await this.commonService.getEntitiesByUrls(new Starships, updatedData.starships) : null;
+                await this.commonService.getEntitiesByUrls(new Starships, updatedData.starships) : [];
 
             personToUpdate.edited = new Date().toISOString();
             await this.peopleRepository.save(personToUpdate);

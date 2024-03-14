@@ -1,17 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ImagesDto } from 'src/common/dto/images.dto';
-import { Films } from 'src/films/entities/films.entity';
-import { People } from 'src/people/entities/people.entity';
-import { Planets } from 'src/planets/entities/planets.entity';
 import { Repository } from 'typeorm';
 import { PeopleImages } from 'src/people/entities/peopleImages.entity';
 import { FilmsImages } from 'src/films/entities/filmsImages.entity';
 import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
 import { OneOfItems, OneOfItemImages, OneOfTypeOfItemImages } from 'src/common/types/types';
-import { Species } from 'src/species/entities/species.entity';
 import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
-import { Starships } from 'src/starships/entities/starships.entity';
-import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
 import { ROOT_URL } from './constants/constants';
 import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
 import { StarshipsImages } from 'src/starships/entities/starshipsImages.entity';
@@ -69,9 +63,9 @@ export class ServiceImpl {
      * @param url Searched url.
      * @returns It is true if the entity exists, otherwise it is a lie.
      */
-    async isItemUrlExists(url: string): Promise<boolean> {
+    async isItemUrlExists(url?: string): Promise<OneOfItems> {
         try {
-            return await this.itemRepository.findOneBy({ url: url }) ? true : false;
+            return !url ? null : await this.itemRepository.findOneBy({ url: url });
         } catch (error) {
             console.error('Error checking item url to exist:', error);
         }
@@ -206,33 +200,6 @@ export class ServiceImpl {
                 })
         } catch (error) {
             console.error('Error getting item:', error);
-        }
-    }
-
-    /**
-     * Getting item entity image entities.
-     * 
-     * @param item The entity of the item.
-     * @returns Item entity image entities.
-     */
-    async getItemImages(item: OneOfItems): Promise<OneOfItemImages[]> {
-        try {
-            switch (true) {
-                case item instanceof People:
-                    return await this.imagesRepository.findBy({ people: item });
-                case item instanceof Films:
-                    return await this.imagesRepository.findBy({ films: item });
-                case item instanceof Planets:
-                    return await this.imagesRepository.findBy({ planets: item });
-                case item instanceof Species:
-                    return await this.imagesRepository.findBy({ species: item });
-                case item instanceof Vehicles:
-                    return await this.imagesRepository.findBy({ vehicles: item });
-                case item instanceof Starships:
-                    return await this.imagesRepository.findBy({ starships: item });
-            }
-        } catch (error) {
-            console.error('Error getting item images:', error);
         }
     }
 

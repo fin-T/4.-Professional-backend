@@ -31,11 +31,11 @@ export class StarshipsService extends ServiceImpl{
 
             newStarships.url = data.url || await this.createItemUniqueUrl(newStarships);
 
-            newStarships.pilots = data.pilots && data.pilots.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, data.pilots) : null;
+            newStarships.pilots = data.pilots ?
+                await this.commonService.getEntitiesByUrls(new People, data.pilots) : [];
 
-            newStarships.films = data.films && data.films.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
+            newStarships.films = data.films ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : [];
 
             newStarships.created = new Date().toISOString();
             newStarships.edited = new Date().toISOString();
@@ -56,11 +56,11 @@ export class StarshipsService extends ServiceImpl{
 
             Object.assign(starshipToUpdate, updatedData);
 
-            starshipToUpdate.pilots = updatedData.pilots && updatedData.pilots.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, updatedData.pilots) : null;
+            starshipToUpdate.pilots = updatedData.pilots ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.pilots) : [];
 
-            starshipToUpdate.films = updatedData.films && updatedData.films.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
+            starshipToUpdate.films = updatedData.films ?
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : [];
 
             starshipToUpdate.edited = new Date().toISOString();
             await this.starshipsRepository.save(starshipToUpdate)

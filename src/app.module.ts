@@ -32,6 +32,11 @@ import { VehiclesImages } from './vehicles/entities/vehiclesImages.entity';
 import { StarshipsService } from './starships/starships.service';
 import { VehiclesService } from './vehicles/vehicles.service';
 import { CommonService } from './common/common.service';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './exeptionFilters/httpExeptionFilter';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { Users } from './users/entities/users.entity';
 
 console.log('AppModule');
 
@@ -49,6 +54,7 @@ console.log('AppModule');
       password: process.env.MYSQL_PASSWORD,
       database: process.env.DATABASE,
       entities: [
+        Users,
         People,
         PeopleImages,
         Films,
@@ -64,31 +70,16 @@ console.log('AppModule');
       ],
       synchronize: true
     }),
+    AuthModule,
+    UsersModule,
     PeopleModule,
     FilmsModule,
     PlanetsModule,
     SpeciesModule,
     VehiclesModule,
-    StarshipsModule
+    StarshipsModule,
   ],
-  controllers: [
-    PeopleController,
-    FilmsController,
-    PlanetsController,
-    SpeciesController, 
-    VehiclesController,
-    StarshipsController
-  ],
-  providers: [
-    CommonService,
-    PeopleService,
-    FilmsService,
-    SpeciesService,
-    PlanetsService,
-    VehiclesService,
-    StarshipsService
-  ],
-  exports:[
+  exports: [
     AppModule
   ]
 })

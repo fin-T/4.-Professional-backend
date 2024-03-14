@@ -52,3 +52,5 @@ export type OneOfTypeOfItemImages = typeof PeopleImages | typeof FilmsImages | t
 
 export type OneOfSevices = PeopleService | FilmsService | PlanetsService | SpeciesService | VehiclesService |
     StarshipsService;
+
+export type User = { username: string, password: string };

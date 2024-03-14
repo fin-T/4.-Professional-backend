@@ -12,6 +12,7 @@ import {
     CREATE_DB, FILMS_URL, PEOPLE_URL, PLANETS_URL, SPECIES_URL, STARSHIPS_URL, VEHICLES_URL
 } from 'src/common/constants/constants';
 import { Pool } from 'mysql2/promise';
+import { UsersService } from 'src/users/users.service';
 
 console.log('DBInitilier');
 

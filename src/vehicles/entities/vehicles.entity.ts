@@ -60,6 +60,6 @@ export class Vehicles {
     url: string;
 
     @OneToMany(() => VehiclesImages, (images) => images.vehicles, { nullable: true })
-    @JoinTable()
+    @JoinTable({name: 'vehicles_images'})
     images: Relation<VehiclesImages>[];
 }

@@ -55,6 +55,6 @@ export class Planets {
     url: string;
 
     @OneToMany(() => PlanetsImages, (images) => images.planets, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'planets_images' })
     images: Relation<PlanetsImages>[];
 }

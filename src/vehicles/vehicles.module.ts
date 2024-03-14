@@ -41,7 +41,7 @@ console.log('VehiclesModule')
     VehiclesController
   ],
   exports: [
-    VehiclesModule,
+    VehiclesService,
     TypeOrmModule
   ]
 })

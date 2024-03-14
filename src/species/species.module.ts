@@ -42,7 +42,7 @@ console.log('SpeciesModule')
     SpeciesController
   ],
   exports: [
-    SpeciesModule,
+    SpeciesService,
     TypeOrmModule
   ]
 })

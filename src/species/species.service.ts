@@ -32,11 +32,11 @@ export class SpeciesService extends ServiceImpl {
 
             newSpecie.url = data.url || await this.createItemUniqueUrl(newSpecie);
 
-            newSpecie.people = data.people && data.people.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, data.people) : null;
+            newSpecie.people = data.people ?
+                await this.commonService.getEntitiesByUrls(new People, data.people) : [];
 
-            newSpecie.films = data.films && data.films.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
+            newSpecie.films = data.films ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : [];
 
             newSpecie.created = new Date().toISOString();
             newSpecie.edited = new Date().toISOString();
@@ -57,11 +57,11 @@ export class SpeciesService extends ServiceImpl {
 
             Object.assign(specieToUpdate, updatedData);
 
-            specieToUpdate.people = updatedData.people && updatedData.people.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, updatedData.people) : null;
+            specieToUpdate.people = updatedData.people ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.people) : [];
 
-            specieToUpdate.films = updatedData.films && updatedData.films.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
+            specieToUpdate.films = updatedData.films ?
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : [];
 
             specieToUpdate.edited = new Date().toISOString();
             await this.speciesRepository.save(specieToUpdate);

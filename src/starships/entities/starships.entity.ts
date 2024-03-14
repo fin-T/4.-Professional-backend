@@ -1,7 +1,7 @@
 import { Films } from "src/films/entities/films.entity";
 import { People } from "src/people/entities/people.entity";
-import { 
-    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique 
+import {
+    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique
 } from "typeorm";
 import { StarshipsImages } from "./starshipsImages.entity";
 
@@ -55,7 +55,7 @@ export class Starships {
     @ManyToMany(() => People, (pilots) => pilots.starships, { nullable: true })
     pilots: Relation<People>[];
 
-    @ManyToMany(() => Films, (films) => films.starships, {nullable: true})
+    @ManyToMany(() => Films, (films) => films.starships, { nullable: true })
     films: Films[];
 
     @Column()
@@ -67,7 +67,7 @@ export class Starships {
     @Column()
     url: string;
 
-    @OneToMany(() => StarshipsImages, (images) => images.starships, {nullable: true})
-    @JoinTable()
+    @OneToMany(() => StarshipsImages, (images) => images.starships, { nullable: true })
+    @JoinTable({ name: 'starships_images' })
     images: Relation<StarshipsImages>[];
 }

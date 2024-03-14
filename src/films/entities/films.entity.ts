@@ -1,6 +1,6 @@
 import { People } from "src/people/entities/people.entity";
-import { 
-    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique 
+import {
+    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique
 } from "typeorm";
 import { FilmsImages } from "./filmsImages.entity";
 import { Planets } from "src/planets/entities/planets.entity";
@@ -37,19 +37,19 @@ export class Films {
     characters: People[];
 
     @ManyToMany(() => Planets, (planet) => planet.films, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'films_planets' })
     planets: Planets[];
 
     @ManyToMany(() => Starships, (starship) => starship.films, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'films_starships' })
     starships: Starships[];
 
     @ManyToMany(() => Vehicles, (vehicle) => vehicle.films, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'films_vehicles' })
     vehicles: Vehicles[];
 
     @ManyToMany(() => Species, (specie) => specie.films, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'films_species' })
     species: Species[];
 
     @Column()
@@ -62,6 +62,6 @@ export class Films {
     url: string;
 
     @OneToMany(() => FilmsImages, (images) => images.films, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'films_images' })
     images: Relation<FilmsImages>[];
 }

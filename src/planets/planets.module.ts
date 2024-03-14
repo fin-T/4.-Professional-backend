@@ -42,7 +42,7 @@ console.log('PlanetsModule')
     PlanetsController
   ],
   exports: [
-    PlanetsModule,
+    PlanetsService,
     TypeOrmModule
   ]
 })

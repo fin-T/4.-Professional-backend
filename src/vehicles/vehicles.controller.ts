@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehiclesDto } from './dto/create_vehicles.dto';
@@ -7,10 +7,18 @@ import { UpdateVehiclesDto } from './dto/update_vehicles.dto';
 import { ImagesDto } from 'src/common/dto/images.dto';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
 import { CommonService } from 'src/common/common.service';
+import { HttpExceptionFilter } from 'src/exeptionFilters/httpExeptionFilter';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { Role } from 'src/common/enums/role.enum';
+import { CreateUserDto } from 'src/auth/dto/create_user.dto';
+import { CREATE, DELETE, DELETE_IMAGES, DOWNLOAD_IMAGES, UPDATE } from './descriptions/vehicles.descriptions';
 console.log('VehiclesController')
 
 @ApiTags('Vehicles')
 @Controller('vehicles')
+@UseFilters(HttpExceptionFilter)
 export class VehiclesController {
     constructor(
         private vehiclesService: VehiclesService,
@@ -18,30 +26,10 @@ export class VehiclesController {
     ) { }
 
     @Post()
-    @ApiOperation({
-        summary: 'Creating vehicle.',
-        description: `To create a vehicle, you must pass the request body with the required field <b>name</b>.<br>
-        Fields available for filling: <b>name</b>, <b>model</b>, <b>manufacturer</b>, <b>cost_in_credits</b>,
-        <b>length</b>, <b>max_atmosphering_speed</b>, <b>crew</b>, <b>passengers</b>, <b>cargo_capacity</b>,
-        <b>consumables</b>, <b>vehicle_class</b>, <b>pilots</b>, <b>films</b>, <b>url</b>.
-        <br>
-        The input format can be viewed [here](https://swapi.py4e.com/api/vehicles/4/). <br>
-        <b>Be careful</b> if you do not fill in the <b>url</b> field,
-        then it will be generated automatically with a unique value. <br>
-        All fields may not be unique, except <b>url</b>.
-        If you enter a non-unique <b>url</b>, the vehicle will not be created and the corresponding response will be
-        returned to you.
-        <br><br>
-        
-    Example request: \n
-    {
-    "name": "Transporter",
-    "films": [ "https://swapi.py4e.com/api/films/1/", "https://swapi.py4e.com/api/films/2/" ],
-    "url": "https://default-domain.dev/api/vehicles/98/"
-    }
-        `
-    })
-    @ApiBody({ type: CreateVehiclesDto, required: true })
+    @ApiOperation({ summary: 'Creating vehicle.', description: CREATE })
+    @ApiBody({ type: CreateVehiclesDto && CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async createVehicle(@Body() data: CreateVehiclesDto): Promise<Partial<OneOfItems>> {
         if (await this.vehiclesService.isItemUrlExists(data.url)) {
             throw new HttpException('A vehicle with the same URL already exists.', 409)
@@ -51,26 +39,19 @@ export class VehiclesController {
         if (unexistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
         }
+
         let newVehicle = await this.vehiclesService.create(data);
-
-        let vehicleDataForResponse = this.vehiclesService.setItemDataForResponse(newVehicle);
-        if (!vehicleDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return vehicleDataForResponse;
+        return this.vehiclesService.setItemDataForResponse(newVehicle);
     }
 
     @Get()
-    @ApiOperation({
-        summary: 'Getting vehicles on the page.'
-    })
+    @ApiOperation({ summary: 'Getting vehicles on the page.' })
     @ApiQuery({
-        type: Number,
-        name: 'page',
+        type: Number, name: 'page',
         description: 'Page with vehicles. If no value is passed, the first 10 vehicles will be received.',
-        required: false,
-        example: 1
-
+        required: false, example: 1
     })
+    @Roles(Role.Admin, Role.User)
     async getVehicles(@Query('page') page?: number): Promise<Partial<OneOfItems>[]> {
         let vehicle = [];
         if (!page) {
@@ -81,8 +62,6 @@ export class VehiclesController {
 
         if (vehicle.length === 0) throw new HttpException('Vehicles not found.', 404);
 
-        if (!vehicle) throw new HttpException('Unknown server error.', 500);
-
         let vehiclesForResponse = vehicle.map((vehicle) => {
             return this.vehiclesService.setItemDataForResponse(vehicle)
         })
@@ -91,33 +70,16 @@ export class VehiclesController {
     }
 
     @Put(':id')
-    @ApiOperation({
-        summary: 'Updating vehicle data.',
-        description: `To transfer data for updating, you must send the request body.
-        Fields available for filling: <b>name</b>, <b>model</b>, <b>manufacturer</b>, <b>cost_in_credits</b>,
-        <b>length</b>, <b>max_atmosphering_speed</b>, <b>crew</b>, <b>passengers</b>, <b>cargo_capacity</b>,
-        <b>consumables</b>, <b>vehicle_class</b>, <b>pilots</b>, <b>films</b>, <b>url</b>.
-        <br>
-        The input format can be viewed [here](https://swapi.py4e.com/api/vehicles/4/). <br>
-        <b>Be careful</b> if you do not fill in the <b>url</b> field,
-        then it will be generated automatically with a unique value. <br>
-        All fields may not be unique, except <b>url</b>.
-        If you enter a non-unique <b>url</b>, the vehicle will not be created and the corresponding response will be 
-        returned to you.
-        <br><br>
-        
-    Example request: \n
-    {
-    "name": "Transporter",
-    "films": [ "https://swapi.py4e.com/api/films/1/", "https://swapi.py4e.com/api/films/2/" ]
-    }
-        `
-    })
+    @ApiOperation({ summary: 'Updating vehicle data.', description: UPDATE })
     @ApiParam({ name: 'id', description: 'Vehicle id', type: Number })
-    @ApiBody({ type: UpdateVehiclesDto, required: false })
-    async updateVehicle(
-        @Param('id') vehicleId: number, @Body() updatedData: UpdateVehiclesDto
-    ): Promise<Partial<OneOfItems>> {
+    @ApiBody({ type: UpdateVehiclesDto && CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async updateVehicle(@Param('id') vehicleId: number,
+        @Body() updatedData: UpdateVehiclesDto): Promise<Partial<OneOfItems>> {
+        let vehicleToUpdate = await this.vehiclesService.getItem(Number(vehicleId));
+        if (!vehicleToUpdate) throw new BadRequestException('Vehicle not found');
+
         if (updatedData.url && await this.vehiclesService.isItemUrlExists(updatedData.url)) {
             throw new HttpException(`Url ${updatedData.url} is busied.`, 409);
         }
@@ -128,70 +90,52 @@ export class VehiclesController {
         }
 
         let updatedVehicle = await this.vehiclesService.update(vehicleId, updatedData);
-
-        let vehicleDataForResponse = this.vehiclesService.setItemDataForResponse(updatedVehicle);
-        if (!vehicleDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return vehicleDataForResponse;
+        return this.vehiclesService.setItemDataForResponse(updatedVehicle);
     }
 
     @Delete(':id')
     @ApiOperation({
-        summary: 'Deleting a vehicle.'
+        summary: 'Deleting a vehicle.',
+        description: DELETE
     })
     @ApiParam({ type: Number, name: 'id', description: 'Vehicle id' })
+    @ApiBody({ type: CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async deleteVehicle(@Param('id') vehicleId: number): Promise<Partial<OneOfItems>> {
         let vehicleToDelete = await this.vehiclesService.getItem(Number(vehicleId));
-
         if (!vehicleToDelete) throw new HttpException('Data not found.', 404);
 
         let deletedVehicle = await this.vehiclesService.deleteItem(Number(vehicleId));
+        if (!deletedVehicle) throw new HttpException('Item not found.', 404);
 
-        let vehicleDataForResponse = this.vehiclesService.setItemDataForResponse(deletedVehicle);
-        if (!vehicleDataForResponse) throw new HttpException('Item not found.', 404);
-
-        return vehicleDataForResponse;
+        return this.vehiclesService.setItemDataForResponse(deletedVehicle);
     }
 
     @Post(':id/images')
-    @ApiOperation({
-        summary: 'Downloading images.',
-        description: `Loading links (urls) to images. <br>
-        Supported formats: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
-        To download links to images, you need to send the request body with the <b>ursl</b> field.
-        <br><br>
-        
-    Example request: \n
-    {
-    "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
-    }
-        `
-    })
-    @ApiBody({ type: ImagesDto, required: false })
+    @ApiOperation({ summary: 'Downloading images.', description: DOWNLOAD_IMAGES })
+    @ApiBody({ type: ImagesDto && CreateUserDto, required: true })
     @ApiParam({ type: Number, name: 'id', description: 'Vehicle id' })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async downloadImages(@Body() imagesData: ImagesDto,
         @Param('id') vehicleId: number): Promise<Partial<OneOfItems>> {
         let vehicle = await this.vehiclesService.getItem(Number(vehicleId));
         if (!vehicle) throw new HttpException('Vehicle not found.', 404);
 
         let vehicleWithImages = await this.vehiclesService.downloadItemImages(imagesData, vehicle);
-        let vehicleDataForResponse = this.vehiclesService.setItemDataForResponse(vehicleWithImages);
-        if (!vehicleDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return vehicleWithImages;
+        return this.vehiclesService.setItemDataForResponse(vehicleWithImages);
     }
 
     @Delete(':vehicleId/images/:imageId')
-    @ApiOperation({
-        summary: 'Deleting an image.',
-        description: `Removing links (urls) to images by vehicle and image identifiers.`
-    })
+    @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
     @ApiParam({ type: Number, name: 'vehicleId', description: 'Vehicle id' })
     @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-    async deleteImages(
-        @Param('vehicleId') vehicleId: number,
-        @Param('imageId') imageId: number
-    ): Promise<Partial<OneOfItems>> {
+    @ApiBody({ type: CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async deleteImages(@Param('vehicleId') vehicleId: number,
+        @Param('imageId') imageId: number): Promise<Partial<OneOfItems>> {
         let vehicle = await this.vehiclesService.getItem(Number(vehicleId));
         if (!vehicle) throw new HttpException('Vehicle not found.', 404);
 
@@ -199,10 +143,7 @@ export class VehiclesController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.vehiclesService.deleteImage(imageId);
-
-        let vehicleDataForResponse = this.vehiclesService.setItemDataForResponse(vehicle);
-
-        return vehicleDataForResponse;
+        return this.vehiclesService.setItemDataForResponse(vehicle);
     }
 
     @Get(':id')
@@ -210,6 +151,7 @@ export class VehiclesController {
         summary: 'Getting a vehicle.'
     })
     @ApiParam({ type: Number, name: 'id', description: 'Vehicle id' })
+    @Roles(Role.Admin, Role.User)
     async getPerson(@Param('id') vehicleId: number): Promise<Partial<OneOfItems>> {
         let vehicle = await this.vehiclesService.getItem(Number(vehicleId));
         if (!vehicle) throw new HttpException('Vehicle not found.', 404);

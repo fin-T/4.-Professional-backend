@@ -1,7 +1,7 @@
 import { Films } from "src/films/entities/films.entity";
 import { People } from "src/people/entities/people.entity";
-import { 
-    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique 
+import {
+    Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique
 } from "typeorm";
 import { SpeciesImages } from "./speciesImages.entity";
 console.log('Species')
@@ -40,7 +40,7 @@ export class Species {
     language: string;
 
     @ManyToMany(() => People, (person) => person.species, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'species_people' })
     people: People[]
 
     @ManyToMany(() => Films, (film) => film.species, { nullable: true })
@@ -50,12 +50,12 @@ export class Species {
     created: string;
 
     @Column()
-    edited:string;
+    edited: string;
 
     @Column()
     url: string;
 
     @OneToMany(() => SpeciesImages, (images) => images.species, { nullable: true })
-    @JoinTable()
+    @JoinTable({ name: 'species_images' })
     images: Relation<SpeciesImages>[];
 }

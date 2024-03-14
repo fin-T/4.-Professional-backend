@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpException, Param, Post, Put, Query, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PlanetsService } from './planets.service';
 import { CreatePlanetsDto } from './dto/create_planets.dto';
@@ -7,10 +7,18 @@ import { ImagesDto } from 'src/common/dto/images.dto';
 import { OneOfItems } from 'src/common/types/types';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
 import { CommonService } from 'src/common/common.service';
+import { HttpExceptionFilter } from 'src/exeptionFilters/httpExeptionFilter';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
+import { RolesGuard } from 'src/guards/roles.guard';
+import { CreateUserDto } from 'src/auth/dto/create_user.dto';
+import { CREATE, DELETE, DELETE_IMAGES, DOWNLOAD_IMAGES, UPDATE } from './descriptions/planets.descriptions';
 console.log('PlanetsController')
 
 @ApiTags('Planets')
 @Controller('planets')
+@UseFilters(HttpExceptionFilter)
 export class PlanetsController {
     constructor(
         private planetsService: PlanetsService,
@@ -18,30 +26,10 @@ export class PlanetsController {
     ) { }
 
     @Post()
-    @ApiOperation({
-        summary: 'Creating planet.',
-        description: `To create a planet, you must pass the request body with the required field <b>name</b>.<br>
-        Fields available for filling: <b>name</b>, <b>rotation_period</b>, <b>orbital_period</b>, <b>diameter</b>,
-        <b>climate</b>, <b>gravity</b>, <b>terrain</b>, <b>surface_water</b>, <b>population</b>, <b>residents< /b>,
-        <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>films</b>, <b>url</b>.
-        <br>
-        The input format can be viewed [here](https://swapi.py4e.com/api/planets/1/). <br>
-        <b>Be careful</b> if you do not fill in the <b>url</b> field,
-        then it will be generated automatically with a unique value. <br>
-        All fields may not be unique, except <b>url</b>.
-        If you enter a non-unique <b>url</b>, the planet will not be created and the corresponding response will be 
-        returned to you.
-        <br><br>
-        
-    Example request: \n
-    {
-    "name": "Zefira",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
-    "url": "https://some-domain.dev/api/planets/98/"
-    }
-        `
-    })
-    @ApiBody({ type: CreatePlanetsDto, required: true })
+    @ApiOperation({ summary: 'Creating planet.', description: CREATE })
+    @ApiBody({ type: CreatePlanetsDto && CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async createPlanet(@Body() data: CreatePlanetsDto): Promise<Partial<OneOfItems>> {
         if (await this.planetsService.isItemUrlExists(data.url)) {
             throw new HttpException('A planet with the same URL already exists.', 409)
@@ -51,25 +39,19 @@ export class PlanetsController {
         if (unexistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
         }
+
         let newPlanet = await this.planetsService.create(data);
-
-        let planetDataForResponse = this.planetsService.setItemDataForResponse(newPlanet);
-        if (!planetDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return planetDataForResponse;
+        return this.planetsService.setItemDataForResponse(newPlanet);
     }
 
     @Get()
-    @ApiOperation({
-        summary: 'Getting planets on the page.'
-    })
+    @ApiOperation({ summary: 'Getting planets on the page.' })
     @ApiQuery({
-        type: Number,
-        name: 'page',
+        type: Number, name: 'page',
         description: 'Planets page. If no value is passed, the first 10 planets will be returned.',
-        required: false,
-        example: 1
+        required: false, example: 1
     })
+    @Roles(Role.Admin, Role.User)
     async getPlanets(@Query('page') page?: number): Promise<Partial<OneOfItems>[]> {
         let planets = [];
         if (!page) {
@@ -80,8 +62,6 @@ export class PlanetsController {
 
         if (planets.length === 0) throw new HttpException('Planets not found.', 404);
 
-        if (!planets) throw new HttpException('Unknown server error.', 500);
-
         let planetsForResponse = planets.map((vehicle) => {
             return this.planetsService.setItemDataForResponse(vehicle)
         })
@@ -90,35 +70,16 @@ export class PlanetsController {
     }
 
     @Put(':id')
-    @ApiOperation({
-        summary: 'Updating planet data.',
-        description: `To transfer data for updating, you must send
-        request body.
-        Fields available for filling: <b>name</b>, <b>rotation_period</b>, <b>orbital_period</b>, <b>diameter</b>,
-        <b>climate</b>, <b>gravity</b>, <b>terrain</b>, <b>surface_water</b>, <b>population</b>, <b>residents< /b>,
-        <b>species</b>, <b>vehicles</b>, <b>starships</b>, <b>films</b>,
-        <b>url</b>.
-        <br>
-        The input format can be viewed [here](https://swapi.py4e.com/api/planets/1/). <br>
-        <b>Be careful</b> if you do not fill in the <b>url</b> field,
-        then it will be generated automatically with a unique value. <br>
-        All fields may not be unique, except <b>url</b>.
-        If you enter a non-unique <b>url</b>, the planet will not be created and the corresponding response will be 
-        returned to you.
-        <br><br>
-        
-    Example request: \n
-    {
-    "name": "Roma",
-    "films": [ "https://swapi.dev/api/films/4/", "https://swapi.dev/api/films/3/" ],
-    "url": "https://update-domain.dev/api/planets/98/"
-    }
-        `
-    })
+    @ApiOperation({ summary: 'Updating planet data.', description: UPDATE })
     @ApiParam({ name: 'id', description: 'Planet id', type: Number })
-    @ApiBody({ type: UpdatePlanetsDto, required: false })
+    @ApiBody({ type: UpdatePlanetsDto && CreateUserDto, required: false })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async updatePlanet(@Param('id') planetId: number,
         @Body() updatedData: UpdatePlanetsDto): Promise<Partial<OneOfItems>> {
+        let planetToUpdate = await this.planetsService.getItem(Number(planetId));
+        if (!planetToUpdate) throw new BadRequestException('Planet not found');
+
         if (updatedData.url && await this.planetsService.isItemUrlExists(updatedData.url)) {
             throw new HttpException(`Url ${updatedData.url} is busied.`, 409);
         }
@@ -129,70 +90,50 @@ export class PlanetsController {
         }
 
         let updatedPlanet = await this.planetsService.update(planetId, updatedData);
-
-        let planetDataForResponse = this.planetsService.setItemDataForResponse(updatedPlanet);
-        if (!planetDataForResponse) throw new HttpException('Unknown server error.', 500);
-
-        return planetDataForResponse;
+        return this.planetsService.setItemDataForResponse(updatedPlanet);
     }
 
     @Delete(':id')
-    @ApiOperation({
-        summary: 'Deleting a planet.'
-    })
+    @ApiOperation({ summary: 'Deleting a planet.', description: DELETE })
     @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
+    @ApiBody({ type: CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async deletePlanet(@Param('id') planetId: number): Promise<Partial<OneOfItems>> {
         let planetToDelete = await this.planetsService.getItem(Number(planetId));
 
         if (!planetToDelete) throw new HttpException('Data not found.', 404);
 
         let deletedPlanet = await this.planetsService.deleteItem(Number(planetId));
+        if (!deletedPlanet) throw new HttpException('Item not found.', 404);
 
-        let planetDataForResponse = this.planetsService.setItemDataForResponse(deletedPlanet);
-        if (!planetDataForResponse) throw new HttpException('Item not found.', 404);
-
-        return planetDataForResponse;
+        return this.planetsService.setItemDataForResponse(deletedPlanet);
     }
 
     @Post(':id/images')
-    @ApiOperation({
-        summary: 'Downloading images.',
-        description: `Loading links (urls) to images. <br>
-        Supported formats: <i>"jpeg"</i>, <i>"jpg"</i>, <i>"png"</i>, <i>"gif"</i>. <br>
-        To download links to images, you need to send the request body with the <b>ursl</b> field.
-        <br><br>
-        
-    Example request: \n
-    {
-    "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
-    }
-        `
-    })
-    @ApiBody({ type: ImagesDto, required: false })
+    @ApiOperation({ summary: 'Downloading images.', description: DOWNLOAD_IMAGES })
+    @ApiBody({ type: ImagesDto && CreateUserDto, required: true })
     @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
     async downloadImages(@Body() imagesData: ImagesDto,
         @Param('id') planetId: number): Promise<Partial<OneOfItems>> {
-            let planet = await this.planetsService.getItem(Number(planetId));
-            if (!planet) throw new HttpException('Planet not found.', 404);
-    
-            let planetWithImages = await this.planetsService.downloadItemImages(imagesData, planet);
-            let planetDataForResponse = this.planetsService.setItemDataForResponse(planetWithImages);
-            if (!planetDataForResponse) throw new HttpException('Unknown server error.', 500);
-    
-            return planetWithImages;
+        let planet = await this.planetsService.getItem(Number(planetId));
+        if (!planet) throw new HttpException('Planet not found.', 404);
+
+        let planetWithImages = await this.planetsService.downloadItemImages(imagesData, planet);
+        return this.planetsService.setItemDataForResponse(planetWithImages);
     }
 
     @Delete(':planetId/images/:imageId')
-    @ApiOperation({
-        summary: 'Deleting an image.',
-        description: `Removing links (urls) to images by planet and image identifiers.`
-    })
+    @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
     @ApiParam({ type: Number, name: 'planetId', description: 'Planet id' })
     @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-    async deleteImages(
-        @Param('planetId') planetId: number,
-        @Param('imageId') imageId: number
-    ): Promise<Partial<OneOfItems>> {
+    @ApiBody({ type: CreateUserDto, required: true })
+    @UseGuards(LocalAuthGuard, RolesGuard)
+    @Roles(Role.Admin)
+    async deleteImages(@Param('planetId') planetId: number,
+        @Param('imageId') imageId: number): Promise<Partial<OneOfItems>> {
         let planet = await this.planetsService.getItem(Number(planetId));
         if (!planet) throw new HttpException('Planet not found.', 404);
 
@@ -200,17 +141,13 @@ export class PlanetsController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.planetsService.deleteImage(imageId);
-
-        let filmDataForResponse = this.planetsService.setItemDataForResponse(planet);
-
-        return filmDataForResponse;
+        return this.planetsService.setItemDataForResponse(planet);
     }
 
     @Get(':id')
-    @ApiOperation({
-        summary: 'Getting a planet.'
-    })
+    @ApiOperation({ summary: 'Getting a planet.' })
     @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
+    @Roles(Role.Admin, Role.User)
     async getPlanet(@Param('id') planetId?: number): Promise<Partial<OneOfItems>> {
         let planet = await this.planetsService.getItem(Number(planetId));
         if (!planet) throw new HttpException('Planet not found.', 404);

@@ -42,7 +42,7 @@ console.log('FilmsModule');
     FilmsController
   ],
   exports: [
-    FilmsModule,
+    FilmsService,
     TypeOrmModule
   ]
 })

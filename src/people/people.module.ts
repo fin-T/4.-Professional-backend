@@ -15,6 +15,8 @@ import { Starships } from 'src/starships/entities/starships.entity';
 import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
 import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
 import { CommonService } from 'src/common/common.service';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from 'src/exeptionFilters/httpExeptionFilter';
 console.log('PeopleModule')
 
 @Module({
@@ -42,7 +44,7 @@ console.log('PeopleModule')
     PeopleService
   ],
   exports: [
-    PeopleModule,
+    PeopleService,
     TypeOrmModule
   ]
 })

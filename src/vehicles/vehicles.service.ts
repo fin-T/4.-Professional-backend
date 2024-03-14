@@ -32,11 +32,11 @@ export class VehiclesService extends ServiceImpl {
 
             newVehicle.url = data.url || await this.createItemUniqueUrl(newVehicle);
 
-            newVehicle.pilots = data.pilots && data.pilots.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, data.pilots) : null;
+            newVehicle.pilots = data.pilots ?
+                await this.commonService.getEntitiesByUrls(new People, data.pilots) : [];
 
-            newVehicle.films = data.films && data.films.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Films, data.films) : null;
+            newVehicle.films = data.films ?
+                await this.commonService.getEntitiesByUrls(new Films, data.films) : [];
 
             newVehicle.created = new Date().toISOString();
             newVehicle.edited = new Date().toISOString();
@@ -57,11 +57,11 @@ export class VehiclesService extends ServiceImpl {
 
             Object.assign(vehicleToUpdate, updatedData);
 
-            vehicleToUpdate.pilots = updatedData.pilots && updatedData.pilots.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new People, updatedData.pilots) : null;
+            vehicleToUpdate.pilots = updatedData.pilots ?
+                await this.commonService.getEntitiesByUrls(new People, updatedData.pilots) : [];
 
-            vehicleToUpdate.films = updatedData.films && updatedData.films.length > 0 ?
-                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : null;
+            vehicleToUpdate.films = updatedData.films ?
+                await this.commonService.getEntitiesByUrls(new Films, updatedData.films) : [];
 
             vehicleToUpdate.edited = new Date().toISOString();
             await this.vehiclesRepository.save(vehicleToUpdate);

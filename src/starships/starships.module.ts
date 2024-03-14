@@ -41,7 +41,7 @@ console.log('StarshipsModule');
     StarshipsController
   ],
   exports: [
-    StarshipsModule,
+    StarshipsService,
     TypeOrmModule
   ]
 })
