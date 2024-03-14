@@ -1,9 +1,9 @@
 ## Description 
 
-Проект обработки маршрутов для взаимодействия с элементами из [star wars world](https://swapi.py4e.com/api/).
+A project for processing routes to interact with elements from [star wars world](https://swapi.py4e.com/api/).
 
-Перед тем как пользоваться маршрутами, которые доступны только авторизованным пользователям, необходимо 
-зарегестрироваться по маршруту регистрации, чтобы данные пользователя сохранились в базе данных.
+Before using routes that are available only to authorized users, you must
+register using the registration route so that the user data is saved in the database.
 
 ## Installation
 
