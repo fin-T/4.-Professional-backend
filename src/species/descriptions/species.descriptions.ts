@@ -20,7 +20,7 @@ export const CREATE = `To create a specie, you must pass the request body with t
     "username": "existingLogin",
     "password": "rightPassword",
     "name": "Zefiradant",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
+    "films": [ "https://swapi.py4e.com/api/films/1/", "https://swapi.py4e.com/api/films/2/" ],
     "url": "https://some-domain.dev/api/species/98/"
     }`;
 
@@ -46,7 +46,7 @@ export const UPDATE = `To transfer data for updating, you must send request body
     "username": "existingLogin",
     "password": "rightPassword",
     "name": "Zefiradant",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
+    "films": [ "https://swapi.py4e.com/api/films/1/", "https://swapi.py4e.com/api/films/2/" ],
     "url": "https://some-domain.dev/api/species/98/"
     }`;
 

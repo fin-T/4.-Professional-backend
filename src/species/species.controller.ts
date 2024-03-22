@@ -35,9 +35,9 @@ export class SpeciesController {
             throw new HttpException('A specie with the same URL already exists.', 409)
         }
 
-        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
-        if (unexistingUrls.length > 0) {
-            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
         let newSpecie = await this.speciesService.create(data);
@@ -85,7 +85,7 @@ export class SpeciesController {
         }
 
         let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
-        if (nonExistingUrls.length > 0) {
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
@@ -140,7 +140,8 @@ export class SpeciesController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.speciesService.deleteImage(imageId);
-        return this.speciesService.setItemDataForResponse(specie);
+        let specieWithoutImage = await this.speciesService.getItem(Number(specieId));
+        return this.speciesService.setItemDataForResponse(specieWithoutImage);
     }
 
     @Get(':id')

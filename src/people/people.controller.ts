@@ -4,22 +4,21 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PeopleService } from './people.service';
-import { ImagesDto } from 'src/common/dto/images.dto';
+import { ImagesDto } from './../common/dto/images.dto';
 import { CreatePeopleDto } from './dto/create_people.dto';
 import { UpdatePeopleDto } from './dto/update_people.dto';
-import { OneOfItems } from 'src/common/types/types';
-import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
-import { CommonService } from 'src/common/common.service';
-import { LocalAuthGuard } from 'src/auth/local-auth.guard';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { Role } from 'src/common/enums/role.enum';
-import { RolesGuard } from 'src/guards/roles.guard';
-import { CreateUserDto } from 'src/auth/dto/create_user.dto';
+import { OneOfItems } from './../common/types/types';
+import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
+import { CommonService } from './../common/common.service';
+import { LocalAuthGuard } from './../auth/local-auth.guard';
+import { Roles } from './../common/decorators/roles.decorator';
+import { Role } from './../common/enums/role.enum';
+import { RolesGuard } from './../guards/roles.guard';
+import { CreateUserDto } from './../auth/dto/create_user.dto';
 import { CREATE, UPDATE, DELETE, DELETE_IMAGES, DOWNLOAD_IMAGES } from './descriptions/people.descriptions';
 
 console.log('PeopleController')
 
-@Catch()
 @ApiTags('People')
 @Controller('people')
 export class PeopleController {
@@ -39,7 +38,7 @@ export class PeopleController {
         }
 
         let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
-        if (unexistingUrls.length > 0) {
+        if (unexistingUrls && unexistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
         }
 
@@ -143,7 +142,8 @@ export class PeopleController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.peopleService.deleteImage(imageId);
-        return this.peopleService.setItemDataForResponse(person);
+        let personWithoutImage = await this.peopleService.getItem(Number(personId));
+        return this.peopleService.setItemDataForResponse(personWithoutImage);
     }
 
     @Get(':id')

@@ -1,9 +1,9 @@
-import { People } from "src/people/entities/people.entity";
+import { People } from "./../../people/entities/people.entity";
 import {
     Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Relation, Unique
 } from "typeorm";
 import { PlanetsImages } from "./planetsImages.entity";
-import { Films } from "src/films/entities/films.entity";
+import { Films } from "./../../films/entities/films.entity";
 console.log('Planets')
 
 @Entity()

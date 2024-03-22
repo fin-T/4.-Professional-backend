@@ -20,7 +20,7 @@ export const CREATE = `To create a movie, you must pass the request body with th
     "username": "existingLogin",
     "password": "rightPassword",
     "title": "Uvula",
-    "characters": [ "https://swapi.dev/api/people/1/", "https://swapi.dev/api/people/12/" ],
+    "characters": [ "https://swapi.py4e.com/api/people/1/", "https://swapi.py4e.com/api/people/12/" ],
     "url": "https://default-domain.dev/api/films/98/"
     }`;
 
@@ -46,7 +46,7 @@ export const UPDATE = `To transfer data for updating, you must send request body
     "username": "existingLogin",
     "password": "rightPassword",
     "title": "Uvula",
-    "characters": [ "https://swapi.dev/api/people/1/", "https://swapi.dev/api/people/12/" ],
+    "characters": [ "https://swapi.py4e.com/api/people/1/", "https://swapi.py4e.com/api/people/12/" ],
     "url": "https://default-domain.dev/api/films/98/"
     }`;
 

@@ -9,6 +9,7 @@ import { People } from 'src/people/entities/people.entity';
 import { Films } from 'src/films/entities/films.entity';
 import { ServiceImpl } from 'src/common/serviceImpl';
 import { CommonService } from 'src/common/common.service';
+import { Planets } from 'src/planets/entities/planets.entity';
 console.log('SpeciesService')
 
 @Injectable()
@@ -31,6 +32,10 @@ export class SpeciesService extends ServiceImpl {
             Object.assign(newSpecie, data);
 
             newSpecie.url = data.url || await this.createItemUniqueUrl(newSpecie);
+
+            let planets = data.homeworld ?
+                await this.commonService.getEntitiesByUrls(new Planets, [data.homeworld]) : [];
+            newSpecie.homeworld = planets && planets.length > 0 ? planets[0] : null;
 
             newSpecie.people = data.people ?
                 await this.commonService.getEntitiesByUrls(new People, data.people) : [];
@@ -56,6 +61,10 @@ export class SpeciesService extends ServiceImpl {
             let specieToUpdate = await this.speciesRepository.findOneBy({ id: specieId });
 
             Object.assign(specieToUpdate, updatedData);
+
+            let planets = updatedData.homeworld ?
+                await this.commonService.getEntitiesByUrls(new Planets, [updatedData.homeworld]) : [];
+            specieToUpdate.homeworld = planets && planets.length > 0 ? planets[0] : null;
 
             specieToUpdate.people = updatedData.people ?
                 await this.commonService.getEntitiesByUrls(new People, updatedData.people) : [];

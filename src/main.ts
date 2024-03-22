@@ -31,6 +31,7 @@ async function bootstrap() {
     jsonDocumentUrl: 'openapi.jsof'
   });
   
+  // For global using exeption filters. 
   app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(3000);

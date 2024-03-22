@@ -30,18 +30,15 @@ $ nest start -b swc -w
 $ npm run start:prod
 ```
 
+After launch, wait for the following message in the console:
+"The data has been successfully downloaded into the database.
+You can begin." to begin.
+
 ## Test
 
 ```bash
 # unit tests
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
 
 ## Support
 

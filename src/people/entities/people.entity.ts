@@ -1,13 +1,13 @@
-import { Films } from "src/films/entities/films.entity";
+import { Films } from "./../../films/entities/films.entity";
 import {
     Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany,
     PrimaryGeneratedColumn, Relation, Unique
 } from "typeorm";
 import { PeopleImages } from "./peopleImages.entity";
-import { Planets } from "src/planets/entities/planets.entity";
-import { Species } from "src/species/entities/species.entity";
-import { Vehicles } from "src/vehicles/entities/vehicles.entity";
-import { Starships } from "src/starships/entities/starships.entity";
+import { Planets } from "./../../planets/entities/planets.entity";
+import { Species } from "./../../species/entities/species.entity";
+import { Vehicles } from "./../../vehicles/entities/vehicles.entity";
+import { Starships } from "./../../starships/entities/starships.entity";
 console.log('People')
 @Entity()
 @Unique(['url'])

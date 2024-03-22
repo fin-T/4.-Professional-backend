@@ -20,7 +20,7 @@ export const CREATE = `To create a planet, you must pass the request body with t
     "username": "existingLogin",
     "password": "rightPassword",
     "name": "Zefira",
-    "films": [ "https://swapi.dev/api/films/1/", "https://swapi.dev/api/films/2/" ],
+    "films": [ "https://swapi.py4e.com/api/films/1/", "https://swapi.py4e.com/api/films/2/" ],
     "url": "https://some-domain.dev/api/planets/98/"
     }`;
 
@@ -47,7 +47,7 @@ export const UPDATE = `To transfer data for updating, you must send request body
     "username": "existingLogin",
     "password": "rightPassword",
     "name": "Roma",
-    "films": [ "https://swapi.dev/api/films/4/", "https://swapi.dev/api/films/3/" ],
+    "films": [ "https://swapi.py4e.com/api/films/4/", "https://swapi.py4e.com/api/films/3/" ],
     "url": "https://update-domain.dev/api/planets/98/"
     }`;
 

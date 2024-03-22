@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Films } from 'src/films/entities/films.entity';
-import { FilmsImages } from 'src/films/entities/filmsImages.entity';
-import { People } from 'src/people/entities/people.entity';
-import { PeopleImages } from 'src/people/entities/peopleImages.entity';
-import { Planets } from 'src/planets/entities/planets.entity';
-import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
+import { Films } from './../films/entities/films.entity';
+import { FilmsImages } from './../films/entities/filmsImages.entity';
+import { People } from './../people/entities/people.entity';
+import { PeopleImages } from './../people/entities/peopleImages.entity';
+import { Planets } from './../planets/entities/planets.entity';
+import { PlanetsImages } from './../planets/entities/planetsImages.entity';
 import { Repository } from 'typeorm';
 import {
     OneOfAllTypes, OneOfCreateItemsDto, OneOfItemImages, OneOfItems, OneOfUpdateItemsDto
 } from './types/types';
-import { Species } from 'src/species/entities/species.entity';
-import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
-import { StarshipsImages } from 'src/starships/entities/starshipsImages.entity';
-import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
-import { Starships } from 'src/starships/entities/starships.entity';
-import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
+import { Species } from './../species/entities/species.entity';
+import { SpeciesImages } from './../species/entities/speciesImages.entity';
+import { StarshipsImages } from './../starships/entities/starshipsImages.entity';
+import { VehiclesImages } from './../vehicles/entities/vehiclesImages.entity';
+import { Starships } from './../starships/entities/starships.entity';
+import { Vehicles } from './../vehicles/entities/vehicles.entity';
 
 /**
 * Class for interacting with entities of certain item structures (People, Films, Planets,

@@ -1,5 +1,5 @@
 import { ArrayUnique, IsArray, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
-import { IsDateFormat } from "src/validators/isDateFormat";
+import { IsDateFormat } from "./../../validators/isDateFormat";
 console.log('UpdateFilmsDto');
 
 export class UpdateFilmsDto {

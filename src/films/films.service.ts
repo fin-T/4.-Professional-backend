@@ -5,14 +5,14 @@ import { Films } from './entities/films.entity';
 import { FilmsImages } from './entities/filmsImages.entity';
 import { CreateFilmsDto } from './dto/create_films.dto';
 import { UpdateFilmsDto } from './dto/update_films.dto';
-import { OneOfItems } from 'src/common/types/types';
-import { Planets } from 'src/planets/entities/planets.entity';
-import { Species } from 'src/species/entities/species.entity';
-import { People } from 'src/people/entities/people.entity';
-import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
-import { Starships } from 'src/starships/entities/starships.entity';
-import { ServiceImpl } from 'src/common/serviceImpl';
-import { CommonService } from 'src/common/common.service';
+import { OneOfItems } from './../common/types/types';
+import { Planets } from './../planets/entities/planets.entity';
+import { Species } from './../species/entities/species.entity';
+import { People } from './../people/entities/people.entity';
+import { Vehicles } from './../vehicles/entities/vehicles.entity';
+import { Starships } from './../starships/entities/starships.entity';
+import { ServiceImpl } from './../common/serviceImpl';
+import { CommonService } from './../common/common.service';
 console.log('FilmsService');
 
 @Injectable()

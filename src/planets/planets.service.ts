@@ -5,10 +5,10 @@ import { Repository } from 'typeorm';
 import { PlanetsImages } from './entities/planetsImages.entity';
 import { CreatePlanetsDto } from './dto/create_planets.dto';
 import { UpdatePlanetsDto } from './dto/update_planets.rto';
-import { People } from 'src/people/entities/people.entity';
-import { Films } from 'src/films/entities/films.entity';
-import { ServiceImpl } from 'src/common/serviceImpl';
-import { CommonService } from 'src/common/common.service';
+import { People } from './../people/entities/people.entity';
+import { Films } from './../films/entities/films.entity';
+import { ServiceImpl } from './../common/serviceImpl';
+import { CommonService } from './../common/common.service';
 console.log('PlanetsService')
 
 @Injectable()

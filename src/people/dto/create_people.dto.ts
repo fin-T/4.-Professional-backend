@@ -3,7 +3,7 @@ console.log('CreatePeopleDto');
 
 export class CreatePeopleDto {
     @IsString({ message: "name must be a string and name is required" })
-    readonly name: string;
+    name: string;
 
     @IsOptional()
     @IsNumberString()

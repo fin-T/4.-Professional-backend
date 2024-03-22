@@ -35,9 +35,9 @@ export class StarshipsController {
             throw new HttpException('A starship with the same URL already exists.', 409)
         }
 
-        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
-        if (unexistingUrls.length > 0) {
-            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
         let newStarship = await this.starshipsService.create(data);
@@ -87,7 +87,7 @@ export class StarshipsController {
         }
 
         let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
-        if (nonExistingUrls.length > 0) {
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
@@ -142,7 +142,8 @@ export class StarshipsController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.starshipsService.deleteImage(imageId);
-        return this.starshipsService.setItemDataForResponse(starship);
+        let starshipsWithoutImage = await this.starshipsService.getItem(Number(starshipId));
+        return this.starshipsService.setItemDataForResponse(starshipsWithoutImage);
     }
 
     @Get(':id')

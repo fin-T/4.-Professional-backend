@@ -35,9 +35,9 @@ export class PlanetsController {
             throw new HttpException('A planet with the same URL already exists.', 409)
         }
 
-        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
-        if (unexistingUrls.length > 0) {
-            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (nonExistingUrls && nonExistingUrls && nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
         let newPlanet = await this.planetsService.create(data);
@@ -141,7 +141,8 @@ export class PlanetsController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.planetsService.deleteImage(imageId);
-        return this.planetsService.setItemDataForResponse(planet);
+        let planetWithoutImage = await this.planetsService.getItem(Number(planetId));
+        return this.planetsService.setItemDataForResponse(planetWithoutImage);
     }
 
     @Get(':id')

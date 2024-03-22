@@ -44,10 +44,10 @@ export const UPDATE = `To transfer data for updating, you must sendrequest body.
 
     Example request: \n
     {
-    "username": "existingLogin",
-    "password": "rightPassword",
+    "username": "someLogin",
+    "password": "somePassword",
     "name": "Roma",
-    "films": [ "https://swapi.py4e.com/api/films/4/", "https://swapi.py4e.com/api/films/4/" ]
+    "films": [ "https://swapi.py4e.com/api/films/4/", "https://swapi.py4e.com/api/films/2/" ]
     }`;
 
 export const DELETE = `This route is only available to administrators, so the request body must also include 
@@ -57,8 +57,8 @@ export const DELETE = `This route is only available to administrators, so the re
 
     Example request: \n
     {
-    "username": "existingLogin",
-    "password": "rightPassword"
+    "username": "someLogin",
+    "password": "somePassword"
     }`;
 
 export const DOWNLOAD_IMAGES = `Loading links (urls) to images. <br>
@@ -72,8 +72,8 @@ export const DOWNLOAD_IMAGES = `Loading links (urls) to images. <br>
 
     Example request: \n
     {
-    "username": "existingLogin",
-    "password": "rightPassword",
+    "username": "someLogin",
+    "password": "somePassword",
     "urls": [ "https://domainname.12223.jpeg", "https://dsds.asdsad.12321.png"]
     }`;
 
@@ -86,6 +86,6 @@ export const DELETE_IMAGES = `Removing links (urls) to images by person and imag
 
     Example request: \n
     {
-    "username": "existingLogin",
-    "password": "rightPassword"
+    "username": "someLogin",
+    "password": "somePassword"
     }`;

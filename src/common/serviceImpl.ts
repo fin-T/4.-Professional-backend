@@ -1,14 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ImagesDto } from 'src/common/dto/images.dto';
+import { ImagesDto } from './../common/dto/images.dto';
 import { Repository } from 'typeorm';
-import { PeopleImages } from 'src/people/entities/peopleImages.entity';
-import { FilmsImages } from 'src/films/entities/filmsImages.entity';
-import { PlanetsImages } from 'src/planets/entities/planetsImages.entity';
-import { OneOfItems, OneOfItemImages, OneOfTypeOfItemImages } from 'src/common/types/types';
-import { SpeciesImages } from 'src/species/entities/speciesImages.entity';
-import { ROOT_URL } from './constants/constants';
-import { VehiclesImages } from 'src/vehicles/entities/vehiclesImages.entity';
-import { StarshipsImages } from 'src/starships/entities/starshipsImages.entity';
+import { OneOfItems, OneOfItemImages } from './../common/types/types';
+import { IMAGE_CLASS_MAP, ROOT_URL } from './constants/constants';
 
 console.log('ItemsServiceImpl');
 
@@ -39,16 +33,16 @@ export class ServiceImpl {
      */
     async createItemUniqueUrl(instance: OneOfItems): Promise<string> {
         try {
-            let item = instance.constructor.name;
+            let item = instance.constructor.name.toLowerCase();
 
             let maxId = (await this.itemRepository.createQueryBuilder(``)
                 .select(`MAX(id)`, 'maxId')
                 .getRawOne()).maxId;
 
-            let uniqueUrl = `${ROOT_URL}${item}/${++maxId}/`;
+            let uniqueUrl = `${ROOT_URL}/${item}/${++maxId}/`;
 
             while (await this.isItemUrlExists(uniqueUrl)) {
-                uniqueUrl = `${ROOT_URL}${item}/${++maxId}/`;
+                uniqueUrl = `${ROOT_URL}/${item}/${++maxId}/`;
             }
 
             return uniqueUrl;
@@ -65,7 +59,7 @@ export class ServiceImpl {
      */
     async isItemUrlExists(url?: string): Promise<OneOfItems> {
         try {
-            return !url ? null : await this.itemRepository.findOneBy({ url: url });
+            return url ? await this.itemRepository.findOne({ where: { url: url } }) : null;
         } catch (error) {
             console.error('Error checking item url to exist:', error);
         }
@@ -81,8 +75,8 @@ export class ServiceImpl {
      */
     setItemDataForResponse(item: OneOfItems): Partial<OneOfItems> {
         try {
-            let responseData: Partial<OneOfItems> = item;
-            Object.assign(responseData, item);
+            let responseData: Partial<OneOfItems> = {...item};
+            // Object.assign(responseData, item);
             for (let key in responseData) {
                 if (Array.isArray(responseData[key])) {
                     responseData[key] = responseData[key].map((item: OneOfItems) => item.url);
@@ -104,10 +98,11 @@ export class ServiceImpl {
      * @param itemId Item entity identifier.
      * @returns The deleted item entity.
      */
-    async deleteItem(itemId: number): Promise<OneOfItems> {
+    async deleteItem(itemId: number): Promise<OneOfItems | null> {
         try {
-            let itemToDelete = await this.getItem(itemId);
-            return await this.itemRepository.remove(itemToDelete);
+            let itemToDelete = await this.itemRepository.findOneBy({ id: itemId });
+
+            return itemToDelete ? await this.itemRepository.remove(itemToDelete) : null;
         } catch (error) {
             console.error('Error deleting item:', error);
         }
@@ -123,7 +118,8 @@ export class ServiceImpl {
     async downloadItemImages(imagesData: ImagesDto,
         item: OneOfItems): Promise<OneOfItems> {
         try {
-            const ImageClass = this.getImageClass(item);
+            // const ImageClass = this.getImageClass(item);
+            const ImageClass = IMAGE_CLASS_MAP[item.constructor.name];
 
             let fieldNameForItem = item.constructor.name.toLowerCase();
             let imageUrls: OneOfItemImages[] = [];
@@ -145,24 +141,24 @@ export class ServiceImpl {
         }
     }
 
-    /**
-     * Gets the class of the image entity according to the item's entity.
-     * 
-     * @param item The entitie of the item.
-     * @returns The element's image entity class.
-     */
-    getImageClass(item: OneOfItems): OneOfTypeOfItemImages {
-        const imageClassesMap = {
-            People: PeopleImages,
-            Films: FilmsImages,
-            Planets: PlanetsImages,
-            Species: SpeciesImages,
-            Vehicles: VehiclesImages,
-            Starships: StarshipsImages
-        };
+    // /**
+    //  * Gets the class of the image entity according to the item's entity.
+    //  * 
+    //  * @param item The entitie of the item.
+    //  * @returns The element's image entity class.
+    //  */
+    // getImageClass(item: OneOfItems): OneOfTypeOfItemImages {
+    //     const imageClassesMap = {
+    //         People: PeopleImages,
+    //         Films: FilmsImages,
+    //         Planets: PlanetsImages,
+    //         Species: SpeciesImages,
+    //         Vehicles: VehiclesImages,
+    //         Starships: StarshipsImages
+    //     };
 
-        return imageClassesMap[item.constructor.name];
-    }
+    //     return imageClassesMap[item.constructor.name];
+    // }
 
     /**
      * Deletes an image entity by ID.
@@ -170,10 +166,10 @@ export class ServiceImpl {
      * @param imageId Image entity ID.
      * @returns The deleted element image entity.
      */
-    async deleteImage(imageId: number): Promise<OneOfItemImages> {
+    async deleteImage(imageId: number): Promise<OneOfItemImages | null> {
         try {
-            let imageToDelete = await this.getImage(imageId);
-            return await this.imagesRepository.remove(imageToDelete);
+            let imageToDelete = await this.imagesRepository.findOneBy({ id: imageId });
+            return imageToDelete ? await this.imagesRepository.remove(imageToDelete) : null;
         } catch (error) {
             console.log('Error deleting item image:', error);
         }

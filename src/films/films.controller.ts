@@ -2,17 +2,17 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpException, Para
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { FilmsService } from './films.service';
 import { CreateFilmsDto } from './dto/create_films.dto';
-import { ImagesDto } from 'src/common/dto/images.dto';
+import { ImagesDto } from './../common/dto/images.dto';
 import { UpdateFilmsDto } from './dto/update_films.dto';
-import { OneOfItems } from 'src/common/types/types';
-import { MESSAGE_ABOUT_NONEXISTENT_URLS } from 'src/common/constants/constants';
-import { CommonService } from 'src/common/common.service';
-import { HttpExceptionFilter } from 'src/exeptionFilters/httpExeptionFilter';
-import { LocalAuthGuard } from 'src/auth/local-auth.guard';
-import { CreateUserDto } from 'src/auth/dto/create_user.dto';
-import { Roles } from 'src/common/decorators/roles.decorator';
-import { RolesGuard } from 'src/guards/roles.guard';
-import { Role } from 'src/common/enums/role.enum';
+import { OneOfItems } from './../common/types/types';
+import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
+import { CommonService } from './../common/common.service';
+import { HttpExceptionFilter } from './../exeptionFilters/httpExeptionFilter';
+import { LocalAuthGuard } from './../auth/local-auth.guard';
+import { CreateUserDto } from './../auth/dto/create_user.dto';
+import { Roles } from './../common/decorators/roles.decorator';
+import { RolesGuard } from './../guards/roles.guard';
+import { Role } from './../common/enums/role.enum';
 import { CREATE, DELETE, DELETE_IMAGES, DOWNLOAD_IMAGES, UPDATE } from './descriptions/films.descriptions';
 console.log('FilmsController');
 
@@ -35,9 +35,9 @@ export class FilmsController {
             throw new HttpException('A film with the same URL already exists.', 409)
         }
 
-        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
-        if (unexistingUrls.length > 0) {
-            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
         let newFilm = await this.filmsService.create(data);
@@ -85,7 +85,7 @@ export class FilmsController {
         }
 
         let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
-        if (nonExistingUrls.length > 0) {
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
@@ -140,7 +140,8 @@ export class FilmsController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.filmsService.deleteImage(imageId);
-        return this.filmsService.setItemDataForResponse(film);
+        let filmWithoutImages = await this.filmsService.getItem(Number(filmId));
+        return this.filmsService.setItemDataForResponse(filmWithoutImages);
     }
     @Get(':id')
     @ApiOperation({ summary: 'Getting the film.' })

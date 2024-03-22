@@ -5,14 +5,13 @@ import { People } from './entities/people.entity';
 import { PeopleImages } from './entities/peopleImages.entity';
 import { CreatePeopleDto } from './dto/create_people.dto';
 import { UpdatePeopleDto } from './dto/update_people.dto';
-import { OneOfAllTypes, OneOfItems } from 'src/common/types/types';
-import { Planets } from 'src/planets/entities/planets.entity';
-import { Films } from 'src/films/entities/films.entity';
-import { Species } from 'src/species/entities/species.entity';
-import { Vehicles } from 'src/vehicles/entities/vehicles.entity';
-import { Starships } from 'src/starships/entities/starships.entity';
-import { ServiceImpl } from 'src/common/serviceImpl';
-import { CommonService } from 'src/common/common.service';
+import { Planets } from './../planets/entities/planets.entity';
+import { Films } from './../films/entities/films.entity';
+import { Species } from './../species/entities/species.entity';
+import { Vehicles } from './../vehicles/entities/vehicles.entity';
+import { Starships } from './../starships/entities/starships.entity';
+import { ServiceImpl } from './../common/serviceImpl';
+import { CommonService } from './../common/common.service';
 console.log('PeopleService')
 
 @Injectable()
@@ -96,5 +95,9 @@ export class PeopleService extends ServiceImpl {
         } catch (error) {
             console.error('Person updating error:', error);
         }
+    }
+
+    addTenAndMultiplyByHundred(num: number): number {
+        return (num + 10) * 100;
     }
 }

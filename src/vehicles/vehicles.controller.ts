@@ -35,9 +35,9 @@ export class VehiclesController {
             throw new HttpException('A vehicle with the same URL already exists.', 409)
         }
 
-        let unexistingUrls = await this.commonService.getNonExistingItemUrls(data);
-        if (unexistingUrls.length > 0) {
-            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${unexistingUrls}`, 404);
+        let nonExistingUrls = await this.commonService.getNonExistingItemUrls(data);
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
+            throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
         let newVehicle = await this.vehiclesService.create(data);
@@ -85,7 +85,7 @@ export class VehiclesController {
         }
 
         let nonExistingUrls = await this.commonService.getNonExistingItemUrls(updatedData);
-        if (nonExistingUrls.length > 0) {
+        if (nonExistingUrls && nonExistingUrls.length > 0) {
             throw new HttpException(`${MESSAGE_ABOUT_NONEXISTENT_URLS} ${nonExistingUrls}`, 404);
         }
 
@@ -143,7 +143,8 @@ export class VehiclesController {
         if (!imageToDelete) throw new HttpException('Image not found.', 404);
 
         await this.vehiclesService.deleteImage(imageId);
-        return this.vehiclesService.setItemDataForResponse(vehicle);
+        let vehicleWithoutImage = await this.vehiclesService.getItem(Number(vehicleId));
+        return this.vehiclesService.setItemDataForResponse(vehicleWithoutImage);
     }
 
     @Get(':id')
