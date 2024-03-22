@@ -2,6 +2,8 @@
 
 A project for processing routes to interact with elements from [star wars world](https://swapi.py4e.com/api/).
 
+Before starting, you will also need to set your MySQL username and password in the .env file to use the local database.
+
 Before using routes that are available only to authorized users, you must
 register using the registration route so that the user data is saved in the database.
 
