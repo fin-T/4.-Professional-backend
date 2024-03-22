@@ -41,6 +41,7 @@ You can begin." to begin.
 ```bash
 # unit tests
 $ npm run test
+```
 
 ## Support
 
