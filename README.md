@@ -22,7 +22,7 @@ The application will be available at: `localhost:3000`. Using swagger: `localhos
 ## Running the app on the server (ubuntu) with docker 
 #### Instance must have 2 or more GiB Memory and ssd 8 or more Gb
 
-Open port 80 and 443 for instance.
+Open port 80 and 443 for instance and 8111 for teamcity.
 
 Set domain name for your instance in Hosted zones and on domain registrar site.
 
