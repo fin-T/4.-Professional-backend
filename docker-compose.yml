@@ -45,6 +45,14 @@ services:
       - ./certbot/conf/:/etc/letsencrypt/:rw
     networks: 
       - swapi_network
+  teamcity:
+    image: jetbrains/teamcity-server:latest
+    ports:
+      - "8111:8111"
+    volumes:
+      - teamcity_data:/data/teamcity_server/datadir
+    networks:
+      - swapi_network
 
 volumes:
   mysql_data:

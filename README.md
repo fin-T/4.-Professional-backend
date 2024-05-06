@@ -2,6 +2,23 @@
 
 A project for processing routes to interact with elements from [star wars world](https://swapi.py4e.com/api/).
 
+## Running the application locally
+
+Create a database called star_wars_world in mysql and configure the .env file.
+In .env use localhost for MYSQL_HOST, 3306 for MYSQL_PORT. 
+
+Выполните:
+```
+npm i
+```
+
+Then you can use a fast compiler:
+```
+nest start -b swc -w
+```
+
+The application will be available at: `localhost:3000`. Using swagger: `localhost:3000/api`
+
 ## Running the app on the server (ubuntu) with docker 
 #### Instance must have 2 or more GiB Memory and ssd 8 or more Gb
 
