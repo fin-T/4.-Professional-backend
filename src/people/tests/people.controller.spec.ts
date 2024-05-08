@@ -187,8 +187,6 @@ describe('PeopleController', () => {
       expect(result).toEqual(expectedResponse);
     });
   });
-  
-
 
   describe('deleteImages', () => {
     it('should return person without deleted images', async () => {
