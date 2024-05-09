@@ -13,6 +13,7 @@ import {
   Query,
   UploadedFiles,
   UseFilters,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -40,11 +41,13 @@ import {
 import { Roles } from './../auth/decorators/roles.decorator';
 import { Role } from './../common/enums/role.enum';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 console.log('StarshipsController');
 
 @ApiTags('Starships')
 @Controller('starships')
-@UseFilters(HttpExceptionFilter)
+@UseGuards(AuthGuard, RolesGuard)
 export class StarshipsController {
   constructor(
     private starshipsService: StarshipsService,

@@ -12,6 +12,7 @@ import {
   Put,
   Query,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -38,12 +39,14 @@ import {
 import { Roles } from './../auth/decorators/roles.decorator';
 import { Role } from './../common/enums/role.enum';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from './../auth/guards/auth.guard';
+import { RolesGuard } from './../auth/guards/roles.guard';
 
 console.log('PeopleController');
 
 @ApiTags('People')
 @Controller('people')
-// @UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard)
 export class PeopleController {
   constructor(
     private peopleService: PeopleService,
