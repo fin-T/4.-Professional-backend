@@ -209,7 +209,7 @@ export class ServiceImpl {
    * @returns A URL including the file name.
    */
   createURLForAWS(fileName: string): string {
-    return `https://${process.env.BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${fileName}`;
+    return `https:\/\/${process.env.BUCKET_NAME}.s3.${process.env.AWS_S3_REGION}.amazonaws.com\/${fileName}`;
   }
 
   /**
