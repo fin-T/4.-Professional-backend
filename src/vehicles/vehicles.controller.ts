@@ -12,7 +12,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,8 +29,6 @@ import { OneOfItems } from './../common/types/types';
 import { UpdateVehiclesDto } from './dto/update_vehicles.dto';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
 import { CommonService } from './../common/common.service';
-import { HttpExceptionFilter } from './../exeptionFilters/httpExeptionFilter';
-import { CreateUserDto } from './../auth/dto/create_user.dto';
 import {
   CREATE,
   DELETE,
@@ -57,7 +54,7 @@ export class VehiclesController {
 
   @Post()
   @ApiOperation({ summary: 'Creating vehicle.', description: CREATE })
-  @ApiBody({ type: CreateVehiclesDto && CreateUserDto, required: true })
+  @ApiBody({ type: CreateVehiclesDto })
   @Roles(Role.Admin)
   async createVehicle(
     @Body() data: CreateVehiclesDto,
@@ -116,7 +113,7 @@ export class VehiclesController {
   @Put(':id')
   @ApiOperation({ summary: 'Updating vehicle data.', description: UPDATE })
   @ApiParam({ name: 'id', description: 'Vehicle id', type: Number })
-  @ApiBody({ type: UpdateVehiclesDto && CreateUserDto, required: true })
+  @ApiBody({ type: UpdateVehiclesDto })
   @Roles(Role.Admin)
   async updateVehicle(
     @Param('id') vehicleId: number,
@@ -156,7 +153,6 @@ export class VehiclesController {
     description: DELETE,
   })
   @ApiParam({ type: Number, name: 'id', description: 'Vehicle id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteVehicle(
     @Param('id') vehicleId: number,
@@ -222,7 +218,6 @@ export class VehiclesController {
   @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
   @ApiParam({ type: Number, name: 'vehicleId', description: 'Vehicle id' })
   @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteImages(
     @Param('vehicleId') vehicleId: number,

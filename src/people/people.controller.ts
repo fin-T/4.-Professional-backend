@@ -55,6 +55,7 @@ export class PeopleController {
 
   @Post()
   @ApiOperation({ summary: 'Creating person.', description: CREATE })
+  @ApiBody({ type: CreatePeopleDto })
   @Roles(Role.Admin)
   async createPerson(
     @Body() data: CreatePeopleDto,
@@ -111,6 +112,7 @@ export class PeopleController {
 
   @Put(':id')
   @ApiOperation({ summary: "Updating a person's data.", description: UPDATE })
+  @ApiBody({ type: UpdatePeopleDto })
   @Roles(Role.Admin)
   async updatePerson(
     @Param('id') personId: number,

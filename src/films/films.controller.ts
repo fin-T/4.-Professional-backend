@@ -12,7 +12,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,8 +29,6 @@ import { UpdateFilmsDto } from './dto/update_films.dto';
 import { OneOfItems } from './../common/types/types';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
 import { CommonService } from './../common/common.service';
-import { HttpExceptionFilter } from './../exeptionFilters/httpExeptionFilter';
-import { CreateUserDto } from './../auth/dto/create_user.dto';
 import {
   CREATE,
   DELETE,
@@ -53,11 +50,11 @@ export class FilmsController {
   constructor(
     private filmsService: FilmsService,
     private commonService: CommonService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Creating the film.', description: CREATE })
-  @ApiBody({ type: CreateFilmsDto && CreateUserDto, required: true })
+  @ApiBody({ type: CreateFilmsDto })
   @Roles(Role.Admin)
   async createFilm(@Body() data: CreateFilmsDto): Promise<Partial<OneOfItems>> {
     if (await this.filmsService.isItemUrlExists(data.url)) {
@@ -108,7 +105,7 @@ export class FilmsController {
   @Put(':id')
   @ApiOperation({ summary: 'Updating film data.', description: UPDATE })
   @ApiParam({ name: 'id', description: 'Film id', type: Number })
-  @ApiBody({ type: UpdateFilmsDto && CreateUserDto, required: true })
+  @ApiBody({ type: UpdateFilmsDto })
   @Roles(Role.Admin)
   async updateFilm(
     @Param('id') filmId: number,
@@ -140,7 +137,6 @@ export class FilmsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Deleting a film.', description: DELETE })
   @ApiParam({ type: Number, name: 'id', description: 'Film id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteFilm(@Param('id') filmId: number): Promise<Partial<OneOfItems>> {
     const filmToDelete = await this.filmsService.getItem(Number(filmId));
@@ -158,7 +154,7 @@ export class FilmsController {
     description: DOWNLOAD_IMAGES,
   })
   @ApiConsumes('multipart/form-data')
-  @ApiParam({ type: Number, name: 'id', description: 'Person id' })
+  @ApiParam({ type: Number, name: 'id', description: 'Film id' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -201,7 +197,6 @@ export class FilmsController {
   @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
   @ApiParam({ type: Number, name: 'filmId', description: 'Film id' })
   @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteImages(
     @Param('filmId') filmId: number,

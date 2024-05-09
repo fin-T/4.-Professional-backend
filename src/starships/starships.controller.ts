@@ -12,7 +12,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,8 +29,6 @@ import { OneOfItems } from './../common/types/types';
 import { UpdateStarshipsDto } from './dto/update_starships.dto';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
 import { CommonService } from './../common/common.service';
-import { HttpExceptionFilter } from './../exeptionFilters/httpExeptionFilter';
-import { CreateUserDto } from './../auth/dto/create_user.dto';
 import {
   CREATE,
   DELETE,
@@ -56,7 +53,7 @@ export class StarshipsController {
 
   @Post()
   @ApiOperation({ summary: 'Creating starship.', description: CREATE })
-  @ApiBody({ type: CreateStarshipsDto && CreateUserDto, required: true })
+  @ApiBody({ type: CreateStarshipsDto })
   @Roles(Role.Admin)
   async createStarship(
     @Body() data: CreateStarshipsDto,
@@ -117,7 +114,7 @@ export class StarshipsController {
   @Put(':id')
   @ApiOperation({ summary: 'Updating starship data.', description: DELETE })
   @ApiParam({ name: 'id', description: 'Starship id', type: Number })
-  @ApiBody({ type: UpdateStarshipsDto && CreateUserDto, required: true })
+  @ApiBody({ type: UpdateStarshipsDto })
   @Roles(Role.Admin)
   async updateStarship(
     @Param('id') starshipId: number,
@@ -154,7 +151,6 @@ export class StarshipsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Deleting a starship.', description: DELETE })
   @ApiParam({ type: Number, name: 'id', description: 'Starship id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteStarship(
     @Param('id') starshipId: number,
@@ -220,7 +216,6 @@ export class StarshipsController {
   @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
   @ApiParam({ type: Number, name: 'starshipId', description: 'Satrship id' })
   @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteImages(
     @Param('starshipId') starshipId: number,

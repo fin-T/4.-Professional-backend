@@ -12,7 +12,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,8 +29,6 @@ import { UpdatePlanetsDto } from './dto/update_planets.rto';
 import { OneOfItems } from './../common/types/types';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
 import { CommonService } from './../common/common.service';
-import { HttpExceptionFilter } from './../exeptionFilters/httpExeptionFilter';
-import { CreateUserDto } from './../auth/dto/create_user.dto';
 import {
   CREATE,
   DELETE,
@@ -57,7 +54,7 @@ export class PlanetsController {
 
   @Post()
   @ApiOperation({ summary: 'Creating planet.', description: CREATE })
-  @ApiBody({ type: CreatePlanetsDto && CreateUserDto, required: true })
+  @ApiBody({ type: CreatePlanetsDto })
   @Roles(Role.Admin)
   async createPlanet(
     @Body() data: CreatePlanetsDto,
@@ -116,7 +113,7 @@ export class PlanetsController {
   @Put(':id')
   @ApiOperation({ summary: 'Updating planet data.', description: UPDATE })
   @ApiParam({ name: 'id', description: 'Planet id', type: Number })
-  @ApiBody({ type: UpdatePlanetsDto && CreateUserDto, required: false })
+  @ApiBody({ type: UpdatePlanetsDto })
   @Roles(Role.Admin)
   async updatePlanet(
     @Param('id') planetId: number,
@@ -151,7 +148,6 @@ export class PlanetsController {
   @Delete(':id')
   @ApiOperation({ summary: 'Deleting a planet.', description: DELETE })
   @ApiParam({ type: Number, name: 'id', description: 'Planet id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deletePlanet(
     @Param('id') planetId: number,
@@ -217,7 +213,6 @@ export class PlanetsController {
   @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
   @ApiParam({ type: Number, name: 'planetId', description: 'Planet id' })
   @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteImages(
     @Param('planetId') planetId: number,

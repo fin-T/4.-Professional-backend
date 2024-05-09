@@ -12,7 +12,6 @@ import {
   Put,
   Query,
   UploadedFiles,
-  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,9 +29,7 @@ import { CreateSpeciesDto } from './dto/create_species.dto';
 import { UpdateSpeciesDto } from './dto/update_spacies.dto';
 import { MESSAGE_ABOUT_NONEXISTENT_URLS } from './../common/constants/constants';
 import { CommonService } from './../common/common.service';
-import { HttpExceptionFilter } from './../exeptionFilters/httpExeptionFilter';
 import { Role } from './../common/enums/role.enum';
-import { CreateUserDto } from './../auth/dto/create_user.dto';
 import {
   CREATE,
   DELETE,
@@ -57,7 +54,7 @@ export class SpeciesController {
 
   @Post()
   @ApiOperation({ summary: 'Creating specie.', description: CREATE })
-  @ApiBody({ type: CreateSpeciesDto && CreateUserDto, required: true })
+  @ApiBody({ type: CreateSpeciesDto })
   @Roles(Role.Admin)
   async createSpecie(
     @Body() data: CreateSpeciesDto,
@@ -116,7 +113,7 @@ export class SpeciesController {
   @Put(':id')
   @ApiOperation({ summary: 'Updating specie data.', description: UPDATE })
   @ApiParam({ name: 'id', description: 'Specie id', type: Number })
-  @ApiBody({ type: UpdateSpeciesDto && CreateUserDto, required: true })
+  @ApiBody({ type: UpdateSpeciesDto })
   @Roles(Role.Admin)
   async updateSpecie(
     @Param('id') specieId: number,
@@ -151,7 +148,6 @@ export class SpeciesController {
   @Delete(':id')
   @ApiOperation({ summary: 'Deleting a specie.', description: DELETE })
   @ApiParam({ type: Number, name: 'id', description: 'Specie id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteSpecie(
     @Param('id') specieId: number,
@@ -216,7 +212,6 @@ export class SpeciesController {
   @ApiOperation({ summary: 'Deleting an image.', description: DELETE_IMAGES })
   @ApiParam({ type: Number, name: 'specieId', description: 'Specie id' })
   @ApiParam({ type: Number, name: 'imageId', description: 'Image id' })
-  @ApiBody({ type: CreateUserDto, required: true })
   @Roles(Role.Admin)
   async deleteImages(
     @Param('specieId') specieId: number,

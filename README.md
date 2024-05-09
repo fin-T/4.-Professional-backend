@@ -4,10 +4,12 @@ A project for processing routes to interact with elements from [star wars world]
 
 ## Running the application locally
 
-Create a database called star_wars_world in mysql and configure the .env file.
-In .env use localhost for MYSQL_HOST, 3306 for MYSQL_PORT. 
+Змініть в .env юзера і пароль на свій, або створіть нового юзера та надайте відповідні права.
 
-Выполните:
+Create a database called star_wars_world in mysql and configure the .env file.
+In .env use localhost for MYSQL_HOST, 3306 for MYSQL_PORT.
+
+Execute:
 ```
 npm i
 ```
