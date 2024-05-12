@@ -1,0 +1,127 @@
+>  SWC  Running...
+Successfully compiled: 74 files with swc (397.04ms)
+Watching for file changes.
+FilmsImages
+PlanetsImages
+Planets
+SpeciesImages
+Species
+VehiclesImages
+Vehicles
+StarshipsImages
+Starships
+Films
+PeopleImages
+People
+Constants
+ItemsServiceImpl
+PeopleService
+CreatePeopleDto
+UpdatePeopleDto
+PeopleController
+PeopleModule
+FilmsService
+ValidatorConstraint
+CreateFilmsDto
+UpdateFilmsDto
+FilmsController
+FilmsModule
+PlanetsService
+CreatePlanetsDto
+UpdatePlanetsDto
+PlanetsController
+PlanetsModule
+SpeciesService
+CreateSpeciesDto
+UpdateSpeciesDto
+SpeciesController
+SpeciesModule
+VehiclesServise
+CreateVehiclesDto
+UpdateVehiclesDto
+VehiclesController
+VehiclesModule
+StarshipsModule
+CreateStarshipsDto
+UpdateStarshipsDto
+StarshipsController
+StarshipsModule
+AppModule
+DBInitilier
+RequestInterceptor
+Main
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +102ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmCoreModule dependencies initialized[39m[38;5;3m +175ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mUsersModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +14ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSpeciesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mVehiclesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mStarshipsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPeopleModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mFilmsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:18:54 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPlanetsModule dependencies initialized[39m[38;5;3m +1ms[39m
+
+The data has been successfully downloaded into the database. 
+You can begin.
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +10800ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +3ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/registration, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPeopleController {/people}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people/:id/images, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people/:personId/images/:imageId, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/people/:id, GET} route[39m[38;5;3m +2ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mFilmsController {/films}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films/:id/images, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films/:filmId/images/:imageId, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/films/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mPlanetsController {/planets}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets/:id, PUT} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets/:id/images, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets/:planetId/images/:imageId, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/planets/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSpeciesController {/species}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species/:id/images, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species/:specieId/images/:imageId, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/species/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mVehiclesController {/vehicles}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles/:id/images, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles/:vehicleId/images/:imageId, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/vehicles/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mStarshipsController {/starships}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships/:id, PUT} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships/:id/images, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships/:starshipId/images/:imageId, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/starships/:id, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 470754  - [39m05/12/2024, 6:19:05 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +4ms[39m
+Terminated

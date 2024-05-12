@@ -1,0 +1,3 @@
+librarysh.store
+
+reverse_proxy localhost:3000
