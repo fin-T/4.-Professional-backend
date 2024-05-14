@@ -38,8 +38,8 @@ import {
 import { Roles } from './../auth/decorators/roles.decorator';
 import { Role } from './../common/enums/role.enum';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RolesGuard } from './../auth/guards/roles.guard';
+import { AuthGuard } from './../auth/guards/auth.guard';
 console.log('StarshipsController');
 
 @ApiTags('Starships')

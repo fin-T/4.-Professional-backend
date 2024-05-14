@@ -15,7 +15,7 @@ Create a mysql database for the project.
 
 In mysql create a user or use an existing one and configure user privileges over the created database. 
 
-Set your values in the file . env
+Set your values in the file .env
 
 Execute:
 ```
@@ -35,8 +35,8 @@ npm run start
 The application will be available with using swagger at: https://localhost/api
 
 ## Running the app and db on the servers (ubuntu) with docker compose 
-#### Instance, where the app will be placed with teamcity must have 4 or more GiB Memory and ssd 8 or more Gb. 
-#### For instance with the database will be enough 2 or more GiB Memory and ssd 8 or more Gb.
+#### Instance, where the app will be placed with teamcity must have 4 or more GiB Memory and ssd 30 or more Gb. 
+#### For instance with the database will be enough 2 or more GiB Memory and ssd 30 or more Gb.
 
 ### Configuring and running a database server:
 
