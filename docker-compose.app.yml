@@ -1,0 +1,37 @@
+services:
+  nestjs_api: 
+    container_name: nestjs_api 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=development
+      - MYSQL_HOST= ${MYSQL_HOST} # add your public ip where is db
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./src:/usr/src/app/src
+    networks:
+      - swapi_network
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - 80:80  
+      - 443:443
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - /data/caddy/data:/data # Optional
+      - /data/caddy/config:/config # Optional
+    networks: 
+      - swapi_network
+
+networks:
+  swapi_network:
