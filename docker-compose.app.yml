@@ -9,7 +9,7 @@ services:
     environment:
       - PORT=3000
       - NODE_ENV=development
-      - MYSQL_HOST= ${MYSQL_HOST} # add your public ip where is db
+      - MYSQL_HOST=${MYSQL_HOST} # add your public ip where is db
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
