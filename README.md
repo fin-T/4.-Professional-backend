@@ -15,7 +15,7 @@ Create a mysql database for the project.
 
 In mysql create a user or use an existing one and configure user privileges over the created database. 
 
-Set your values in the file .env
+Set your values in the file .env (template for .env file in "env_template" file).
 
 Execute:
 ```
@@ -55,7 +55,7 @@ Install docker compose with script:
 sudo ./install_docker_compose.sh
 ```
 
-Set your values in the file . env
+Set your values in the file .env (template for .env file in "env_template" file).
 
 Do the following:
 ```
@@ -87,7 +87,7 @@ Uncomment lines in `main.ts` file:
     // .addBearerAuth()
     // .addSecurityRequirements('bearer')
 
-Set your values in the file .env.
+Set your values in the file .env (template for .env file in "env_template" file).
 
 In the Caddyfile file, specify your domain.
 
