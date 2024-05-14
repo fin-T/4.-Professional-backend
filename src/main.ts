@@ -24,8 +24,8 @@ async function bootstrap() {
     .setTitle('SWapi')
     .setDescription('The Star wars apis')
     .setVersion('1.0.0')
-    .addBearerAuth()
-    .addSecurityRequirements('bearer')
+    // .addBearerAuth()
+    // .addSecurityRequirements('bearer')
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
