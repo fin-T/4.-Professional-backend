@@ -35,8 +35,7 @@ npm run start
 The application will be available with using swagger at: https://localhost/api
 
 ## Running the app and db on the servers (ubuntu) with docker compose 
-#### Instance, where the app will be placed with teamcity must have 4 or more GiB Memory and ssd 30 or more Gb. 
-#### For instance with the database will be enough 2 or more GiB Memory and ssd 30 or more Gb.
+#### Instances must have 4 or more GiB Memory and ssd 30 or more Gb. 
 
 ### Configuring and running a database server:
 
