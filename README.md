@@ -103,13 +103,15 @@ After launch, wait for the following message in the console:
 
 You can begin." to begin.
 
-The application will be available from swagger at: https://yourDomain/api
+The application will be available with swagger at: https://yourDomain/api
 
-GET routes are available for and for unregistered users. 
+To get started, you need to register as a user (specify the role "user") or as an administrator (specify the role "admin"). 
 
-To work with other routes, you must be authenticated with the role "admin". 
+Only GET routes are available for users.
 
-After inserting the received token into the Swagger Authotize Api.
+For administrators all routes. 
+
+After registration, you will receive a token, which you must insert into the Swagger Authorization Api to make routes available.
 
 ## Test
 
