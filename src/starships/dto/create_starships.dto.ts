@@ -99,6 +99,6 @@ export class CreateStarshipsDto {
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'https://swapi.py4e.com/api/starships/1/' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/starships/100/' })
   readonly url: string;
 }

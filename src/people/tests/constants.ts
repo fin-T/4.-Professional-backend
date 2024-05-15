@@ -80,7 +80,9 @@ export const MOCK_SHORT_PERSON_DATA = {
   created: '2014-12-09T13:50:51.644000Z',
   edited: '2014-12-09T13:50:51.644000Z',
   url: 'https://swapi.py4e.com/api/people/1/',
-  images: ['https://star-wars-world-bucket.s3.us-east-1.amazonaws.com/people_1.png'],
+  images: [
+    'https://star-wars-world-bucket.s3.us-east-1.amazonaws.com/people_1.png',
+  ],
 };
 
 /**

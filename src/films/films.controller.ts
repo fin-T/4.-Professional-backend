@@ -50,7 +50,7 @@ export class FilmsController {
   constructor(
     private filmsService: FilmsService,
     private commonService: CommonService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Creating the film.', description: CREATE })

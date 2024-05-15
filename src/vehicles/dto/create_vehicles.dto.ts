@@ -89,6 +89,6 @@ export class CreateVehiclesDto {
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'https://swapi.py4e.com/api/vehicles/1/' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/vehicles/100/' })
   readonly url: string;
 }

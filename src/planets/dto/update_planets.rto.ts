@@ -80,6 +80,6 @@ export class UpdatePlanetsDto {
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'https://swapi.py4e.com/api/planets/71/' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/planets/100/' })
   readonly url: string;
 }

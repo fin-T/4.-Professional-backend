@@ -51,7 +51,7 @@ export class UpdatePeopleDto {
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'Earth' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/planets/1/' })
   readonly homeworld: string;
 
   @IsOptional()
@@ -84,8 +84,8 @@ export class UpdatePeopleDto {
   @IsUrl({}, { each: true })
   @ApiProperty({
     example: [
-      'https://swapi.py4e.com/api/vehicles/1/',
-      'https://swapi.py4e.com/api/vehicles/2/',
+      'https://swapi.py4e.com/api/vehicles/4/',
+      'https://swapi.py4e.com/api/vehicles/6/',
     ],
   })
   readonly vehicles: string[];
@@ -96,14 +96,14 @@ export class UpdatePeopleDto {
   @IsUrl({}, { each: true })
   @ApiProperty({
     example: [
-      'https://swapi.py4e.com/api/starships/1/',
       'https://swapi.py4e.com/api/starships/2/',
+      'https://swapi.py4e.com/api/starships/3/',
     ],
   })
   readonly starships: string[];
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'https://swapi.py4e.com/api/people/1/' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/people/100/' })
   readonly url: string;
 }

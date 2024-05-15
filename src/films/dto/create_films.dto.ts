@@ -71,8 +71,8 @@ export class CreateFilmsDto {
   @IsUrl({}, { each: true })
   @ApiProperty({
     example: [
-      'https://swapi.py4e.com/api/starships/1/',
       'https://swapi.py4e.com/api/starships/2/',
+      'https://swapi.py4e.com/api/starships/3/',
     ],
   })
   readonly starships: string[];
@@ -83,8 +83,8 @@ export class CreateFilmsDto {
   @IsUrl({}, { each: true })
   @ApiProperty({
     example: [
-      'https://swapi.py4e.com/api/vehicles/1/',
-      'https://swapi.py4e.com/api/vehicles/2/',
+      'https://swapi.py4e.com/api/vehicles/4/',
+      'https://swapi.py4e.com/api/vehicles/6/',
     ],
   })
   readonly vehicles: string[];
@@ -103,6 +103,6 @@ export class CreateFilmsDto {
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'https://swapi.py4e.com/api/films/35/' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/films/100/' })
   readonly url: string;
 }

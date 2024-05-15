@@ -17,9 +17,15 @@ import { People } from '../entities/people.entity';
 import { PeopleImages } from '../entities/peopleImages.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MOCK_IMAGE, MOCK_IMAGES, MOCK_PERSON, MOCK_SHORT_PERSON_DATA } from './constants';
+import {
+  MOCK_IMAGE,
+  MOCK_IMAGES,
+  MOCK_PERSON,
+  MOCK_SHORT_PERSON_DATA,
+} from './constants';
 import { CreatePeopleDto } from '../dto/create_people.dto';
 import { OneOfItems } from 'src/common/types/types';
+import { JwtService } from '@nestjs/jwt';
 
 describe('PeopleController', () => {
   let peopleController: PeopleController;
@@ -32,6 +38,7 @@ describe('PeopleController', () => {
       providers: [
         CommonService,
         PeopleService,
+        JwtService,
         ...getRepositoryProviders([
           People,
           PeopleImages,
@@ -174,15 +181,23 @@ describe('PeopleController', () => {
 
   describe('downloadImages', () => {
     it('should return person with downloaded images', async () => {
-      let person = MOCK_PERSON as OneOfItems
       jest.spyOn(peopleService, 'getItem').mockResolvedValue(MOCK_PERSON);
-      jest.spyOn(peopleService, 'downloadItemImages').mockResolvedValue(MOCK_PERSON);
-      jest.spyOn(peopleService, 'setItemDataForResponse').mockImplementation((item: OneOfItems) => item);
-  
-      const result = await peopleController.downloadImages(MOCK_IMAGES, MOCK_PERSON.id);
+      jest
+        .spyOn(peopleService, 'downloadItemImages')
+        .mockResolvedValue(MOCK_PERSON);
+      jest
+        .spyOn(peopleService, 'setItemDataForResponse')
+        .mockImplementation((item: OneOfItems) => item);
 
-      const expectedResponse = peopleService.setItemDataForResponse(MOCK_PERSON) as OneOfItems;
-  
+      const result = await peopleController.downloadImages(
+        MOCK_IMAGES,
+        MOCK_PERSON.id,
+      );
+
+      const expectedResponse = peopleService.setItemDataForResponse(
+        MOCK_PERSON,
+      ) as OneOfItems;
+
       expect(result).toBeDefined();
       expect(result).toEqual(expectedResponse);
     });

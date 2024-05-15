@@ -85,6 +85,6 @@ export class CreateSpeciesDto {
 
   @IsOptional()
   @IsUrl()
-  @ApiProperty({ example: 'https://swapi.py4e.com/api/species/1/' })
+  @ApiProperty({ example: 'https://swapi.py4e.com/api/species/100/' })
   readonly url: string;
 }

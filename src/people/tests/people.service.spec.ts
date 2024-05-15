@@ -16,19 +16,10 @@ import { Users } from './../../users/entities/users.entity';
 import { Vehicles } from './../../vehicles/entities/vehicles.entity';
 import { VehiclesImages } from './../../vehicles/entities/vehiclesImages.entity';
 import { CommonService } from './../../common/common.service';
-import { IMAGE_CLASS_MAP, ROOT_URL } from './../../common/constants/constants';
+import { ROOT_URL } from './../../common/constants/constants';
 import { CreatePeopleDto } from '../dto/create_people.dto';
 import { UpdatePeopleDto } from '../dto/update_people.dto';
-import {
-  MOCK_METADATA,
-  MOCK_FILM,
-  MOCK_IMAGE,
-  MOCK_IMAGES,
-  MOCK_PERSON,
-  MOCK_SHORT_PERSON_DATA,
-} from './constants';
-import { S3Client } from '@aws-sdk/client-s3';
-import { OneOfItemImages, OneOfItems } from './../../common/types/types';
+import { MOCK_METADATA, MOCK_FILM, MOCK_IMAGE, MOCK_PERSON } from './constants';
 
 describe('PeopleService', () => {
   let peopleService: PeopleService;
@@ -193,17 +184,17 @@ describe('PeopleService', () => {
   //       };
   //     });
   //   });
-  
+
   //   it('should return item with url images', async () => {
   //     const mockImageName = 'people_1.png';
-      
+
   //     jest.spyOn(IMAGE_CLASS_MAP, 'People').mockReturnValueOnce(new PeopleImages);
   //     jest.spyOn(peopleService, 'createNewImageName').mockResolvedValueOnce(mockImageName);
   //     jest.spyOn(peopleService, 'createURLForAWS').mockReturnValueOnce(MOCK_SHORT_PERSON_DATA.images[0]);
   //     jest.spyOn(imagesRepositiry, 'save').mockResolvedValueOnce(MOCK_IMAGE);
 
   //     const result = await peopleService.downloadItemImages(MOCK_IMAGES, MOCK_PERSON);
-  
+
   //     expect(result).toBeDefined();
   //     expect(result).toEqual(MOCK_PERSON);
   //   });
