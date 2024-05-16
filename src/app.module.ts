@@ -22,7 +22,6 @@ import { VehiclesImages } from './vehicles/entities/vehiclesImages.entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { Users } from './users/entities/users.entity';
-import { TestModule } from './test/test.module';
 
 console.log('AppModule');
 
@@ -64,7 +63,6 @@ console.log('AppModule');
     SpeciesModule,
     VehiclesModule,
     StarshipsModule,
-    TestModule,
   ],
   exports: [AppModule],
 })
